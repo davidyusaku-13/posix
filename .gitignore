@@ -1,0 +1,20 @@
+# Binaries & build artifacts
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# SQLite local databases
+*.db
+*.db-wal
+*.db-shm
+
+# Node dependencies
+node_modules/
+frontend/node_modules/
+
+# OS / Editor files
+.DS_Store
+.idea/
+.vscode/
