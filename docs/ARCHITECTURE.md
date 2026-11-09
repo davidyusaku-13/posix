@@ -23,14 +23,54 @@ This document formalizes the system architecture and technical design of POSIX, 
 └────────────────────────────────────────────────────────┘
 ```
 
-- **Frontend**: React + Vite + Tailwind CSS. Optimized for rapid keyboard & touchscreen cashier input.
-- **Backend**: Go standard library `net/http` router with RESTful v1 endpoints.
+- **Frontend**: React + Vite + Tailwind CSS with React Router (`react-router-dom`). Organized into modular subdirectories (`pages/`, `layouts/`, `components/`) featuring a persistent left sidebar navigation.
+- **Backend**: Go standard library `net/http` router with RESTful v1 endpoints and SPA fallback.
 - **Storage**: SQLite 3 with `PRAGMA journal_mode = WAL` (Write-Ahead Logging) and `PRAGMA foreign_keys = ON`.
 - **Packaging**: Single executable binary embedding the frontend bundle via Go's `embed.FS`.
 
 ---
 
-### 2. Database Schema (SQLite DDL)
+### 2. Frontend Subdirectory & Client-Side Route Architecture
+
+POSIX uses **React Router** for real URL subpath routing, with client routes backed by Go's HTML5 SPA fallback:
+
+| Client Path | Target Page Component | Allowed Roles | Description |
+|---|---|---|---|
+| `/` or `/register` | `pages/register/RegisterPage.tsx` | All (`cashier`, `manager`, `admin`) | Point of sale cashier screen (Catalog + Active cart) |
+| `/inventory` | `pages/inventory/InventoryPage.tsx` | `manager`, `admin` | Real-time stock levels, quick restocking, product creation/editing |
+| `/history` | `pages/history/HistoryPage.tsx` | `manager`, `admin` | Aggregate settlement recaps and individual order inspection |
+| `/users` | `pages/users/UsersPage.tsx` | `admin` | Staff onboarding, role assignment, and credential resets |
+| `/login` | `pages/login/LoginPage.tsx` | Public | Tactile numeric PIN pad & credentials authentication |
+
+#### Subdirectory Organization
+```text
+frontend/src/
+├── pages/
+│   ├── register/RegisterPage.tsx     # Cashier Register (Catalog & Cart)
+│   ├── inventory/InventoryPage.tsx   # Stock Management & Catalog editing
+│   ├── history/HistoryPage.tsx       # Settlement Recaps & Order Ledger
+│   ├── users/UsersPage.tsx           # Staff & User Management (RBAC)
+│   └── login/LoginPage.tsx           # PIN & Password Authentication
+├── layouts/
+│   ├── MainLayout.tsx                # Persistent Sidebar + Top Bar + Page Outlet
+│   └── Sidebar.tsx                   # Left navigation sidebar with role-aware links
+├── components/
+│   ├── cart/Cart.tsx                 # Active order cart
+│   ├── catalog/ProductCatalog.tsx    # Barcode lookup & product tiles
+│   ├── payment/PaymentModal.tsx      # Tendered cash & card modal
+│   ├── receipt/ReceiptModal.tsx      # Printable thermal receipt
+│   └── modals/
+│       ├── ProductModal.tsx          # Add / Edit product dialog
+│       └── OrderDetailModal.tsx      # Focused single-order audit dialog
+├── context/
+│   └── AuthContext.tsx               # Global authentication & role guard state
+├── services/api.ts                   # RESTful API client
+└── types/pos.ts                      # Domain models & inputs
+```
+
+---
+
+### 3. Database Schema (SQLite DDL)
 
 ```sql
 PRAGMA foreign_keys = ON;
@@ -114,7 +154,7 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
 ---
 
-### 3. SOLID Principles Implementation
+### 4. SOLID Principles Implementation
 
 #### Single Responsibility Principle (SRP)
 Every package and struct has a single reason to change:
@@ -147,7 +187,7 @@ Every package and struct has a single reason to change:
 
 ---
 
-### 4. DRY (Don't Repeat Yourself)
+### 5. DRY (Don't Repeat Yourself)
 
 1. **Centralized HTTP Helpers**:
    - `respondJSON(w, statusCode, data)` and `respondError(w, statusCode, code, message)` eliminate boilerplate JSON encoding, Content-Type headers, and status code setting.
@@ -158,7 +198,7 @@ Every package and struct has a single reason to change:
 
 ---
 
-### 5. RESTful API Best Practices
+### 6. RESTful API Best Practices
 
 All endpoints use resource nouns (no RPC verbs), proper plural collections, and semantic HTTP status codes:
 
@@ -196,7 +236,7 @@ All endpoints use resource nouns (no RPC verbs), proper plural collections, and 
 
 ---
 
-### 6. Test-Driven Development (TDD: Red → Green → Refactor)
+### 7. Test-Driven Development (TDD: Red → Green → Refactor)
 
 1. **Red**: Write unit and contract tests in `*_test.go` specifying required behavior. Verify the test fails.
 2. **Green**: Write the minimal implementation code to make the test pass.

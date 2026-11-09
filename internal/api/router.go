@@ -55,9 +55,15 @@ func NewRouter(
 			}
 			f, err := staticFS.Open(path)
 			if err != nil {
-				// Fallback to index.html for SPA routes
-				r.URL.Path = "/"
-				fileServer.ServeHTTP(w, r)
+				// Fallback to index.html for SPA subpaths (/register, /inventory, /history, /users)
+				indexData, readErr := fs.ReadFile(staticFS, "index.html")
+				if readErr != nil {
+					http.NotFound(w, r)
+					return
+				}
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				w.WriteHeader(http.StatusOK)
+				w.Write(indexData)
 				return
 			}
 			f.Close()

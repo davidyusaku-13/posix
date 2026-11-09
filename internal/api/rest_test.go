@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
+	"testing/fstest"
 
 	"github.com/davidyusaku-13/posix/internal/api"
 	"github.com/davidyusaku-13/posix/internal/database"
@@ -407,6 +408,56 @@ func TestREST_AuthAndUserEndpoints(t *testing.T) {
 		}
 		if rr.Header().Get("Location") == "" {
 			t.Errorf("expected Location header in 201 response")
+		}
+	})
+}
+
+func TestREST_SPASubpathFallback(t *testing.T) {
+	mockFS := fstest.MapFS{
+		"index.html": {Data: []byte("<!doctype html><html><body>POSIX SPA</body></html>")},
+		"assets/app.js": {Data: []byte("console.log('posix');")},
+	}
+
+	db, _ := database.InitDB(":memory:")
+	productRepo := sqlite.NewProductRepository(db)
+	orderRepo := sqlite.NewOrderRepository(db)
+	userRepo := sqlite.NewUserRepository(db)
+	transactor := sqlite.NewTransactor(db)
+	paymentRegistry := payment.DefaultRegistry()
+
+	productService := service.NewProductService(productRepo)
+	orderService := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry)
+	authService := service.NewAuthService(userRepo)
+	userService := service.NewUserService(userRepo)
+
+	router := api.NewRouter(productService, orderService, authService, userService, mockFS)
+
+	subpaths := []string{"/inventory", "/history", "/users", "/register"}
+	for _, path := range subpaths {
+		t.Run("direct load "+path+" returns index.html", func(t *testing.T) {
+			req, _ := http.NewRequest(http.MethodGet, path, nil)
+			rr := httptest.NewRecorder()
+			router.ServeHTTP(rr, req)
+
+			if rr.Code != http.StatusOK {
+				t.Fatalf("expected 200 OK for %s, got %d", path, rr.Code)
+			}
+			if !bytes.Contains(rr.Body.Bytes(), []byte("POSIX SPA")) {
+				t.Errorf("expected body to contain POSIX SPA, got: %s", rr.Body.String())
+			}
+		})
+	}
+
+	t.Run("static asset file is served directly", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/assets/app.js", nil)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK for asset, got %d", rr.Code)
+		}
+		if !bytes.Contains(rr.Body.Bytes(), []byte("console.log")) {
+			t.Errorf("expected asset contents, got: %s", rr.Body.String())
 		}
 	})
 }
