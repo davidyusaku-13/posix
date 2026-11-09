@@ -48,30 +48,30 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
         {/* Modal Header */}
-        <div className="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-white">Payment Checkout</h3>
-            <p className="text-xs text-slate-400">Select payment method and complete order</p>
+            <h3 className="text-lg font-bold text-slate-900">Payment Checkout</h3>
+            <p className="text-xs text-slate-500">Select payment method and complete order</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
+            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 space-y-5">
+        <div className="p-6 space-y-5">
           {/* Amount Due Banner */}
-          <div className="bg-slate-950 border border-slate-800 rounded-lg p-3.5 text-center">
-            <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">
+          <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 text-center">
+            <span className="text-xs text-emerald-800 uppercase tracking-wider font-bold">
               Total Amount Due
             </span>
-            <div className="text-3xl font-extrabold text-emerald-400 font-mono font-mono-nums mt-0.5">
+            <div className="text-3xl font-extrabold text-emerald-700 font-mono font-mono-nums mt-0.5">
               {formatCents(totalCents)}
             </div>
           </div>
@@ -84,13 +84,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 setMethod('cash')
                 setErrorMsg(null)
               }}
-              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm font-semibold transition ${
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm font-bold transition shadow-2xs ${
                 method === 'cash'
-                  ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300'
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-emerald-50 border-2 border-emerald-600 text-emerald-800'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
-              <Banknote className="w-4 h-4" />
+              <Banknote className="w-4 h-4 stroke-[2.5]" />
               Cash
             </button>
 
@@ -100,13 +100,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 setMethod('card')
                 setErrorMsg(null)
               }}
-              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm font-semibold transition ${
+              className={`flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm font-bold transition shadow-2xs ${
                 method === 'card'
-                  ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300'
-                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-emerald-50 border-2 border-emerald-600 text-emerald-800'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
-              <CreditCard className="w-4 h-4" />
+              <CreditCard className="w-4 h-4 stroke-[2.5]" />
               Credit / Debit Card
             </button>
           </div>
@@ -115,11 +115,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {method === 'cash' ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Cash Tendered ($)
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-mono">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-mono font-bold text-lg">
                     $
                   </span>
                   <input
@@ -128,7 +128,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     min="0"
                     value={cashTenderedStr}
                     onChange={(e) => setCashTenderedStr(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-lg font-mono font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-300 focus:border-emerald-600 rounded-lg text-xl font-mono font-bold text-slate-900 focus:outline-none shadow-xs"
                     autoFocus
                   />
                 </div>
@@ -139,7 +139,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <button
                   type="button"
                   onClick={() => handleQuickCash(totalCents)}
-                  className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded font-mono text-slate-200 border border-slate-700"
+                  className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-xs rounded-md font-mono font-semibold text-slate-800 border border-slate-300 shadow-2xs transition"
                 >
                   Exact ({formatCents(totalCents)})
                 </button>
@@ -150,7 +150,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       key={preset}
                       type="button"
                       onClick={() => handleQuickCash(preset)}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs rounded font-mono text-slate-200 border border-slate-700"
+                      className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-xs rounded-md font-mono font-semibold text-slate-800 border border-slate-300 shadow-2xs transition"
                     >
                       {formatCents(preset)}
                     </button>
@@ -159,11 +159,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
 
               {/* Computed Change */}
-              <div className="bg-slate-950/80 border border-slate-800/80 rounded-lg p-3 flex items-center justify-between">
-                <span className="text-sm text-slate-400">Change Due:</span>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
+                <span className="text-sm font-semibold text-slate-600">Change Due:</span>
                 <span
-                  className={`font-mono text-lg font-bold ${
-                    changeCents < 0 ? 'text-rose-400' : 'text-emerald-400'
+                  className={`font-mono text-xl font-extrabold ${
+                    changeCents < 0 ? 'text-rose-600' : 'text-emerald-700'
                   }`}
                 >
                   {changeCents < 0
@@ -173,12 +173,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
             </div>
           ) : (
-            <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-4 text-center space-y-2">
-              <CreditCard className="w-8 h-8 text-emerald-400 mx-auto" />
-              <p className="text-sm font-medium text-slate-200">Terminal Ready</p>
-              <p className="text-xs text-slate-400">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center space-y-2">
+              <CreditCard className="w-10 h-10 text-emerald-600 mx-auto" />
+              <p className="text-base font-bold text-slate-900">Terminal Ready</p>
+              <p className="text-xs text-slate-500">
                 Customer will tap/insert card for exact total of{' '}
-                <span className="font-mono text-emerald-400 font-bold">
+                <span className="font-mono text-emerald-700 font-bold text-sm">
                   {formatCents(totalCents)}
                 </span>
               </p>
@@ -186,19 +186,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           )}
 
           {errorMsg && (
-            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-2.5 rounded-lg text-xs flex items-center gap-2">
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-lg text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
+              <span className="font-medium">{errorMsg}</span>
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="bg-slate-950 px-5 py-3 border-t border-slate-800 flex items-center justify-end gap-2">
+        <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition"
           >
             Cancel
           </button>
@@ -206,7 +206,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || (method === 'cash' && !isCashSufficient)}
-            className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow transition flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg shadow-md transition flex items-center gap-1.5"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{isSubmitting ? 'Processing...' : 'Complete Sale'}</span>

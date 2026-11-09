@@ -118,14 +118,14 @@ export function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-slate-900 text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col h-screen w-screen bg-slate-100 text-slate-800 overflow-hidden font-sans">
       <Header onReset={handleClearCart} onRefreshCatalog={loadProducts} />
 
       <main className="flex-1 grid grid-cols-12 min-h-0">
         {/* Left 7 cols: Product Catalog & Barcode Scanner */}
         <section className="col-span-7 h-full overflow-hidden">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full text-slate-500 font-mono">
+            <div className="flex items-center justify-center h-full text-slate-400 font-mono">
               Loading POS catalog...
             </div>
           ) : (
