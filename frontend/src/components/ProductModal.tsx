@@ -137,7 +137,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Colombian Roast Beans 500g"
-              className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs font-medium"
+              className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs font-medium"
               autoFocus
             />
           </div>
@@ -154,7 +154,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
                 placeholder="e.g. BEV-003"
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 shadow-2xs"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary disabled:bg-slate-100 disabled:text-slate-500 shadow-2xs"
               />
             </div>
             <div>
@@ -168,7 +168,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={barcode}
                 onChange={(e) => setBarcode(e.target.value)}
                 placeholder="e.g. 8901003"
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 shadow-2xs"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary disabled:bg-slate-100 disabled:text-slate-500 shadow-2xs"
               />
             </div>
           </div>
@@ -186,7 +186,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={priceStr}
                 onChange={(e) => setPriceStr(e.target.value)}
                 placeholder="0.00"
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
               />
             </div>
             <div>
@@ -200,7 +200,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={taxRatePctStr}
                 onChange={(e) => setTaxRatePctStr(e.target.value)}
                 placeholder="8.25"
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
               />
             </div>
           </div>
@@ -217,7 +217,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   value={stockStr}
                   onChange={(e) => setStockStr(e.target.value)}
                   placeholder="10"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
                 />
               </div>
               <div>
@@ -230,7 +230,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   value={minAlertStr}
                   onChange={(e) => setMinAlertStr(e.target.value)}
                   placeholder="5"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={minAlertStr}
                 onChange={(e) => setMinAlertStr(e.target.value)}
                 placeholder="5"
-                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
               />
             </div>
           )}
@@ -261,12 +261,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief item description..."
-              className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+              className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
             />
           </div>
 
           {errorMsg && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-lg text-xs flex items-center gap-2">
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-none text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>

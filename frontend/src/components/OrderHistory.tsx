@@ -52,7 +52,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
     <div className="flex flex-col h-full bg-slate-50 p-6 overflow-hidden">
       {/* Top Header */}
       {errorBanner && (
-        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center justify-between shadow-2xs">
+        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-none text-xs flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{errorBanner}</span>
