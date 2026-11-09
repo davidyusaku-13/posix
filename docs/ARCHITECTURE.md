@@ -8,19 +8,25 @@ This document formalizes the system architecture and technical design of POSIX, 
 ### 1. High-Level System Architecture
 
 ```text
-┌────────────────────────────────────────────────────────┐
-│                   POSIX Single Binary                  │
-│                                                        │
-│  ┌─────────────────────────┐  ┌─────────────────────┐  │
-│  │   React/Vite SPA (UI)   │  │   Go HTTP Server    │  │
-│  │ (Embedded via embed.FS) │◄─┼─► (REST API & Cors) │  │
-│  └─────────────────────────┘  └──────────┬──────────┘  │
-│                                          │             │
-│                               ┌──────────▼──────────┐  │
-│                               │ Embedded SQLite DB  │  │
-│                               │ (WAL Mode, ACID)    │  │
-│                               └─────────────────────┘  │
-└────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                          POSIX Application Host                        │
+│                                                                        │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────────┐  │
+│  │   React/Vite SPA (UI)   │  │           Go HTTP Server            │  │
+│  │ (Embedded via embed.FS) │◄─┼─►        (REST API & Cors)          │  │
+│  └─────────────────────────┘  └───────┬─────────────────────┬───────┘  │
+│                                       │                     │          │
+│                            ┌──────────▼──────────┐ ┌────────▼────────┐ │
+│                            │ Embedded SQLite DB  │ │ internal/       │ │
+│                            │ (WAL Mode, ACID)    │ │ notification    │ │
+│                            └─────────────────────┘ └────────┬────────┘ │
+│                                                             │ (HTTP/   │
+│                                                             │  IPC)    │
+│                                                    ┌────────▼────────┐ │
+│                                                    │ Baileys Bridge  │ │
+│                                                    │ (Bun/Node + WA) │ │
+│                                                    └─────────────────┘ │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Frontend**: React + Vite + Tailwind CSS with React Router (`react-router-dom`). Organized into modular subdirectories (`pages/`, `layouts/`, `components/`) featuring a persistent left sidebar navigation.
@@ -152,6 +158,29 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
+-- 6. Notification Settings & Logs
+CREATE TABLE IF NOT EXISTS notification_settings (
+    id INTEGER PRIMARY KEY CHECK (id = 1),     -- Singleton configuration row
+    owner_phone TEXT NOT NULL DEFAULT '',      -- E.164 phone number
+    enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),
+    notify_low_stock INTEGER NOT NULL DEFAULT 1 CHECK (notify_low_stock IN (0, 1)),
+    cooldown_minutes INTEGER NOT NULL DEFAULT 60 CHECK (cooldown_minutes >= 0),
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS notification_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel TEXT NOT NULL DEFAULT 'whatsapp',
+    recipient TEXT NOT NULL,
+    event_type TEXT NOT NULL,                  -- e.g. 'low_stock', 'test'
+    payload TEXT NOT NULL,                     -- JSON / text message sent
+    status TEXT NOT NULL CHECK (status IN ('sent', 'failed', 'skipped')),
+    error_message TEXT DEFAULT '',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_notification_logs_created_at ON notification_logs(created_at);
 ```
 
 ---
@@ -163,10 +192,12 @@ Every package and struct has a single reason to change:
 - **`internal/domain`**: Pure business models, domain errors, and financial calculation rules (subtotal, basis-point tax, change). Contains zero database or HTTP dependencies.
 - **`internal/payment`**: Strategy pattern for payment processing (`CashProcessor`, `CardProcessor`, and `Registry`).
 - **`internal/repository`**: Defines persistence interfaces (`ProductRepository`, `OrderRepository`, `Transactor`) and their SQLite implementations. Contains zero HTTP or calculation logic.
-- **`internal/service`**: Pure application business orchestration (`OrderService`, `ProductService`). Agnostic of HTTP and database engines.
+- **`internal/service`**: Pure application business orchestration (`OrderService`, `ProductService`, `NotificationService`). Agnostic of HTTP and database engines.
+- **`internal/notification`**: WhatsApp notification client abstraction (`Notifier` interface, `BaileysClient`, `NoopNotifier`).
 - **`internal/api` (Presentation)**: Exclusively handles HTTP request decoding, invoking services, setting status codes/headers, and serializing JSON.
 
 #### Open/Closed Principle (OCP)
+- **Notification Strategy**: Store owner alerts are abstracted behind the `Notifier` interface. New notification gateways (Telegram, SMS Twilio, Discord webhook) can be registered without altering `ProductService` or `OrderService`.
 - **Payment Processing Strategy**: Payment processing is abstracted behind a `payment.Processor` interface:
   ```go
   type Processor interface {
@@ -223,6 +254,12 @@ All endpoints use resource nouns (no RPC verbs), proper plural collections, and 
 | List users (RBAC) | `GET` | `/api/v1/users` | `200 OK` or `403 Forbidden` | List of user accounts |
 | Create user (Admin) | `POST` | `/api/v1/users` | `201 Created` or `403 Forbidden` | Created user object |
 | Update user (Admin) | `PUT` | `/api/v1/users/{id}` | `200 OK` or `403 Forbidden` | Updated user object |
+| Get notification settings | `GET` | `/api/v1/notifications/config` | `200 OK` or `403 Forbidden` | NotificationConfig object |
+| Update notification settings | `PUT` | `/api/v1/notifications/config` | `200 OK` or `403 Forbidden` | Updated NotificationConfig |
+| Get WhatsApp bridge status | `GET` | `/api/v1/notifications/status` | `200 OK` | Connection status & QR code data |
+| Send test notification | `POST` | `/api/v1/notifications/test` | `200 OK` or `422 Unprocessable Entity` | Dispatch result |
+| Disconnect WhatsApp session | `POST` | `/api/v1/notifications/disconnect` | `200 OK` | Disconnection confirmation |
+| List notification audit logs | `GET` | `/api/v1/notifications/logs` | `200 OK` | Array of recent dispatch logs |
 | Health check | `GET` | `/api/v1/health` | `200 OK` | `{"status":"healthy","system":"POSIX"}` |
 
 #### Standardized Error Schema

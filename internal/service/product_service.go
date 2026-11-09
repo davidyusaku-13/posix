@@ -17,11 +17,24 @@ var (
 )
 
 type ProductService struct {
-	repo repository.ProductRepository
+	repo            repository.ProductRepository
+	notificationSvc *NotificationService
 }
 
-func NewProductService(repo repository.ProductRepository) *ProductService {
-	return &ProductService{repo: repo}
+type ProductServiceOption func(*ProductService)
+
+func WithProductNotificationService(ns *NotificationService) ProductServiceOption {
+	return func(s *ProductService) {
+		s.notificationSvc = ns
+	}
+}
+
+func NewProductService(repo repository.ProductRepository, opts ...ProductServiceOption) *ProductService {
+	s := &ProductService{repo: repo}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
 }
 
 func (s *ProductService) ListProducts(ctx context.Context, query string) ([]domain.Product, error) {
@@ -113,5 +126,21 @@ func (s *ProductService) UpdateProduct(ctx context.Context, id int64, input doma
 }
 
 func (s *ProductService) AdjustStock(ctx context.Context, id int64, delta int) (*domain.Product, error) {
-	return s.repo.AdjustStock(ctx, id, delta)
+	var prevStock int
+	if s.notificationSvc != nil && delta < 0 {
+		if existing, err := s.repo.FindByID(ctx, id); err == nil && existing != nil {
+			prevStock = existing.StockQuantity
+		}
+	}
+
+	updated, err := s.repo.AdjustStock(ctx, id, delta)
+	if err != nil {
+		return nil, err
+	}
+
+	if s.notificationSvc != nil && delta < 0 && updated != nil && updated.StockQuantity <= updated.MinStockAlert {
+		_ = s.notificationSvc.CheckAndNotifyLowStock(ctx, *updated, prevStock, updated.StockQuantity, "stock_adjustment")
+	}
+
+	return updated, nil
 }

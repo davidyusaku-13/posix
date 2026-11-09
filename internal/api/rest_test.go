@@ -12,6 +12,7 @@ import (
 	"github.com/davidyusaku-13/posix/internal/api"
 	"github.com/davidyusaku-13/posix/internal/database"
 	"github.com/davidyusaku-13/posix/internal/domain"
+	"github.com/davidyusaku-13/posix/internal/notification"
 	"github.com/davidyusaku-13/posix/internal/payment"
 	"github.com/davidyusaku-13/posix/internal/repository/sqlite"
 	"github.com/davidyusaku-13/posix/internal/service"
@@ -33,8 +34,10 @@ func setupTestRouter(t *testing.T) http.Handler {
 	orderService := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry)
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
+	notifRepo := sqlite.NewNotificationRepository(db)
+	notifService := service.NewNotificationService(notifRepo, notification.NewNoopNotifier())
 
-	return api.NewRouter(productService, orderService, authService, userService, nil)
+	return api.NewRouter(productService, orderService, authService, userService, notifService, nil)
 }
 
 func TestREST_ProductEndpoints(t *testing.T) {
@@ -436,8 +439,10 @@ func TestREST_SPASubpathFallback(t *testing.T) {
 	orderService := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry)
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
+	notifRepo := sqlite.NewNotificationRepository(db)
+	notifService := service.NewNotificationService(notifRepo, notification.NewNoopNotifier())
 
-	router := api.NewRouter(productService, orderService, authService, userService, mockFS)
+	router := api.NewRouter(productService, orderService, authService, userService, notifService, mockFS)
 
 	subpaths := []string{"/inventory", "/history", "/users", "/register"}
 	for _, path := range subpaths {

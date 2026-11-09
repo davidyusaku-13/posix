@@ -71,6 +71,21 @@ POSIX is a lightweight, reliable, cross-platform Point of Sale web application. 
 - **FR-7.3 (User Management)**: Admins can create staff accounts, update roles, toggle active status, and reset credentials.
 - **FR-7.4 (Order Attribution)**: Completed orders record the `cashier_id` and `cashier_name` of the active terminal operator.
 
+#### 2.8 WhatsApp Store Owner Notifications via Baileys (FR-8)
+- **FR-8.1 (Store Owner Notification Channel)**: The POS system integrates with a local WhatsApp service powered by Baileys (`@whiskeysockets/baileys`) to send automated direct alerts to the store owner's mobile phone number without requiring paid cloud SMS or third-party WhatsApp Business API gateways.
+- **FR-8.2 (Low Stock Threshold Alerts)**: Whenever an inventory item's quantity drops to or below its defined low-stock alert threshold (`stock_quantity <= min_stock_alert`), an automated WhatsApp alert is dispatched to the store owner.
+  - **Trigger Points**:
+    1. Cashier completes a sale that depletes stock to or below threshold.
+    2. Manager/Admin manual downward stock recount reduces stock to or below threshold.
+  - **Notification Payload**: Structured, actionable text including store name, product title, SKU/barcode, remaining quantity, alert threshold, and timestamp.
+  - **Deduplication & Anti-Flood**: The notification engine suppresses duplicate alerts for the same product unless stock was restocked above threshold and depleted again, or a configurable cool-off window has elapsed.
+- **FR-8.3 (Device Pairing & Session Management)**: Store owner/admin pairs their WhatsApp device via multi-device QR code in the POS administrative interface. Signal session keys and credentials are stored securely in a local directory (`data/whatsapp_auth/`).
+- **FR-8.4 (Configuration & Diagnostics)**:
+  - Configurable owner phone number (E.164 format, e.g., `+1234567890` or `6281234567890`).
+  - Notification toggles: Master enable/disable, Low-Stock alerts enable/disable.
+  - On-demand "Send Test Notification" to verify phone number and socket pairing.
+- **FR-8.5 (Non-Blocking Fault Isolation)**: All WhatsApp dispatch operations are strictly asynchronous (via goroutines and background queues). If the WhatsApp socket is disconnected, pairing is pending, or local bridge is unreachable, POS cashier checkout and inventory transactions proceed with 100% reliability and zero user-facing latency.
+
 ---
 
 ### 3. Non-Functional Requirements

@@ -120,3 +120,37 @@ export interface AuthResponse {
   token: string
   user: User
 }
+
+export interface NotificationConfig {
+  ownerPhone: string
+  enabled: boolean
+  notifyLowStock: boolean
+  cooldownMinutes: number
+  updatedAt?: string
+}
+
+export interface UpdateNotificationConfigInput {
+  ownerPhone?: string
+  enabled?: boolean
+  notifyLowStock?: boolean
+  cooldownMinutes?: number
+}
+
+export interface WhatsAppStatus {
+  status: 'connected' | 'qr_ready' | 'disconnected' | 'initializing'
+  qrCode?: string
+  connectedPhone?: string
+  error?: string
+  updatedAt?: string
+}
+
+export interface NotificationLog {
+  id: number
+  channel: string
+  recipient: string
+  eventType: string
+  payload: string
+  status: 'sent' | 'failed' | 'skipped'
+  errorMessage?: string
+  createdAt: string
+}

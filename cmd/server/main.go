@@ -10,6 +10,7 @@ import (
 	"github.com/davidyusaku-13/posix"
 	"github.com/davidyusaku-13/posix/internal/api"
 	"github.com/davidyusaku-13/posix/internal/database"
+	"github.com/davidyusaku-13/posix/internal/notification"
 	"github.com/davidyusaku-13/posix/internal/payment"
 	"github.com/davidyusaku-13/posix/internal/repository/sqlite"
 	"github.com/davidyusaku-13/posix/internal/service"
@@ -38,15 +39,24 @@ func main() {
 	userRepo := sqlite.NewUserRepository(db)
 	productRepo := sqlite.NewProductRepository(db)
 	orderRepo := sqlite.NewOrderRepository(db)
+	notifRepo := sqlite.NewNotificationRepository(db)
 	transactor := sqlite.NewTransactor(db)
 	paymentRegistry := payment.DefaultRegistry()
 
-	productSvc := service.NewProductService(productRepo)
-	orderSvc := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry)
+	// Notification Transport via Baileys WhatsApp Bridge
+	bridgeURL := os.Getenv("POSIX_WHATSAPP_BRIDGE_URL")
+	if bridgeURL == "" {
+		bridgeURL = "http://127.0.0.1:8081"
+	}
+	baileysNotifier := notification.NewBaileysClient(bridgeURL)
+	notifSvc := service.NewNotificationService(notifRepo, baileysNotifier)
+
+	productSvc := service.NewProductService(productRepo, service.WithProductNotificationService(notifSvc))
+	orderSvc := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry, service.WithOrderNotificationService(notifSvc))
 	authSvc := service.NewAuthService(userRepo)
 	userSvc := service.NewUserService(userRepo)
 
-	router := api.NewRouter(productSvc, orderSvc, authSvc, userSvc, posix.StaticFS())
+	router := api.NewRouter(productSvc, orderSvc, authSvc, userSvc, notifSvc, posix.StaticFS())
 
 	addr := fmt.Sprintf(":%s", *port)
 	log.Printf("==============================================")

@@ -84,6 +84,30 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
+CREATE TABLE IF NOT EXISTS notification_settings (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    owner_phone TEXT NOT NULL DEFAULT '',
+    enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),
+    notify_low_stock INTEGER NOT NULL DEFAULT 1 CHECK (notify_low_stock IN (0, 1)),
+    cooldown_minutes INTEGER NOT NULL DEFAULT 60 CHECK (cooldown_minutes >= 0),
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS notification_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel TEXT NOT NULL DEFAULT 'whatsapp',
+    recipient TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    product_id INTEGER DEFAULT 0,
+    payload TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('sent', 'failed', 'skipped')),
+    error_message TEXT DEFAULT '',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_notification_logs_created_at ON notification_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_notification_logs_product ON notification_logs(event_type, product_id, created_at);
 `
 
 // InitDB opens a SQLite database, configures pragmas, runs migrations and seeds default data.
@@ -111,6 +135,7 @@ func InitDB(dsn string) (*sql.DB, error) {
 	_, _ = db.Exec(`ALTER TABLE orders ADD COLUMN cashier_id INTEGER REFERENCES users(id);`)
 	_, _ = db.Exec(`ALTER TABLE orders ADD COLUMN cashier_name TEXT NOT NULL DEFAULT '';`)
 	_, _ = db.Exec(`DELETE FROM orders WHERE cashier_name = '' OR cashier_name IS NULL OR cashier_id IS NULL;`)
+	_, _ = db.Exec(`INSERT OR IGNORE INTO notification_settings (id, owner_phone, enabled, notify_low_stock, cooldown_minutes) VALUES (1, '', 0, 1, 60);`)
 
 	// Seed sample retail data if empty
 	if err := SeedSampleProducts(db); err != nil {

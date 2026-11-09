@@ -16,7 +16,13 @@ test_*.db*
 
 # Node dependencies
 node_modules/
+**/node_modules/
 frontend/node_modules/
+bridge/whatsapp/node_modules/
+data/
+**/data/
+*whatsapp_auth*
+**/whatsapp_auth/
 
 # OS / Editor files
 .DS_Store

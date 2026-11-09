@@ -14,12 +14,14 @@ func NewRouter(
 	orderSvc *service.OrderService,
 	authSvc *service.AuthService,
 	userSvc *service.UserService,
+	notifSvc *service.NotificationService,
 	staticFS fs.FS,
 ) http.Handler {
 	productHandler := NewProductHandler(productSvc)
 	orderHandler := NewOrderHandler(orderSvc)
 	authHandler := NewAuthHandler(authSvc)
 	userHandler := NewUserHandler(userSvc)
+	notifHandler := NewNotificationHandler(notifSvc)
 
 	mux := http.NewServeMux()
 
@@ -35,6 +37,12 @@ func NewRouter(
 	mux.HandleFunc("/api/v1/products", productHandler.HandleProducts)
 	mux.HandleFunc("/api/v1/orders/", orderHandler.HandleOrders)
 	mux.HandleFunc("/api/v1/orders", orderHandler.HandleOrders)
+
+	mux.HandleFunc("/api/v1/notifications/config", notifHandler.HandleConfig)
+	mux.HandleFunc("/api/v1/notifications/status", notifHandler.HandleStatus)
+	mux.HandleFunc("/api/v1/notifications/test", notifHandler.HandleTest)
+	mux.HandleFunc("/api/v1/notifications/disconnect", notifHandler.HandleDisconnect)
+	mux.HandleFunc("/api/v1/notifications/logs", notifHandler.HandleLogs)
 
 	mux.HandleFunc("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
 		respondJSON(w, http.StatusOK, map[string]string{

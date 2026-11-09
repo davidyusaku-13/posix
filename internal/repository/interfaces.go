@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/davidyusaku-13/posix/internal/domain"
 )
@@ -38,6 +39,15 @@ type UserRepository interface {
 	Create(ctx context.Context, u *domain.User) (*domain.User, error)
 	Update(ctx context.Context, u *domain.User) (*domain.User, error)
 	Delete(ctx context.Context, id int64) error
+}
+
+// NotificationRepository defines persistence abstractions for notification settings and audit logs (DIP).
+type NotificationRepository interface {
+	GetConfig(ctx context.Context) (*domain.NotificationConfig, error)
+	UpdateConfig(ctx context.Context, input domain.UpdateNotificationConfigInput) (*domain.NotificationConfig, error)
+	LogNotification(ctx context.Context, log *domain.NotificationLog, productID int64) error
+	ListLogs(ctx context.Context, limit int) ([]domain.NotificationLog, error)
+	GetLastSentAt(ctx context.Context, eventType string, productID int64) (*time.Time, error)
 }
 
 // Transactor allows executing operations inside an ACID transaction without exposing raw DB details to services.

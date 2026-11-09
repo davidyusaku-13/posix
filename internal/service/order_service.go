@@ -17,6 +17,15 @@ type OrderService struct {
 	productRepo     repository.ProductRepository
 	transactor      repository.Transactor
 	paymentRegistry *payment.Registry
+	notificationSvc *NotificationService
+}
+
+type OrderServiceOption func(*OrderService)
+
+func WithOrderNotificationService(ns *NotificationService) OrderServiceOption {
+	return func(s *OrderService) {
+		s.notificationSvc = ns
+	}
 }
 
 func NewOrderService(
@@ -24,13 +33,18 @@ func NewOrderService(
 	productRepo repository.ProductRepository,
 	transactor repository.Transactor,
 	paymentRegistry *payment.Registry,
+	opts ...OrderServiceOption,
 ) *OrderService {
-	return &OrderService{
+	s := &OrderService{
 		orderRepo:       orderRepo,
 		productRepo:     productRepo,
 		transactor:      transactor,
 		paymentRegistry: paymentRegistry,
 	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, req domain.CheckoutRequest) (*domain.CheckoutResponse, error) {
@@ -52,6 +66,13 @@ func (s *OrderService) CreateOrder(ctx context.Context, req domain.CheckoutReque
 	orderItems := make([]domain.OrderItem, 0, len(req.Items))
 	var paymentResult *payment.ProcessResult
 	var receiptNumber string
+
+	type stockChange struct {
+		product   domain.Product
+		prevStock int
+		newStock  int
+	}
+	var stockChanges []stockChange
 
 	err = s.transactor.WithinTransaction(ctx, func(tx *sql.Tx) error {
 		// 1. Validate items and inventory
@@ -82,6 +103,12 @@ func (s *OrderService) CreateOrder(ctx context.Context, req domain.CheckoutReque
 			if err := s.productRepo.DeductStockTx(ctx, tx, p.ID, itemInput.Quantity); err != nil {
 				return err
 			}
+
+			stockChanges = append(stockChanges, stockChange{
+				product:   *p,
+				prevStock: p.StockQuantity,
+				newStock:  p.StockQuantity - itemInput.Quantity,
+			})
 
 			orderItems = append(orderItems, domain.OrderItem{
 				OrderID:           orderID,
@@ -138,6 +165,15 @@ func (s *OrderService) CreateOrder(ctx context.Context, req domain.CheckoutReque
 
 	if err != nil {
 		return nil, err
+	}
+
+	// Trigger low stock notifications if any item fell to or below threshold
+	if s.notificationSvc != nil {
+		for _, sc := range stockChanges {
+			if sc.newStock <= sc.product.MinStockAlert {
+				_ = s.notificationSvc.CheckAndNotifyLowStock(ctx, sc.product, sc.prevStock, sc.newStock, "order_checkout")
+			}
+		}
 	}
 
 	return &domain.CheckoutResponse{

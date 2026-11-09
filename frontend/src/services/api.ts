@@ -10,6 +10,10 @@ import type {
   UpdateProductInput,
   UpdateUserInput,
   User,
+  NotificationConfig,
+  UpdateNotificationConfigInput,
+  WhatsAppStatus,
+  NotificationLog,
 } from '../types/pos'
 
 export interface ApiError {
@@ -253,4 +257,77 @@ export const posApi = {
 
     return res.json()
   },
+
+  // Notifications & WhatsApp Bridge
+  async getNotificationConfig(): Promise<NotificationConfig> {
+    const res = await fetch('/api/v1/notifications/config', {
+      headers: getAuthHeader(),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to fetch notification settings')
+    }
+    return res.json()
+  },
+
+  async updateNotificationConfig(input: UpdateNotificationConfigInput): Promise<NotificationConfig> {
+    const res = await fetch('/api/v1/notifications/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify(input),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to update notification settings')
+    }
+    return res.json()
+  },
+
+  async getWhatsAppStatus(): Promise<WhatsAppStatus> {
+    const res = await fetch('/api/v1/notifications/status', {
+      headers: getAuthHeader(),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to get WhatsApp status')
+    }
+    return res.json()
+  },
+
+  async sendTestNotification(): Promise<{ status: string; message: string }> {
+    const res = await fetch('/api/v1/notifications/test', {
+      method: 'POST',
+      headers: getAuthHeader(),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to send test notification')
+    }
+    return res.json()
+  },
+
+  async disconnectWhatsApp(): Promise<{ status: string }> {
+    const res = await fetch('/api/v1/notifications/disconnect', {
+      method: 'POST',
+      headers: getAuthHeader(),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to disconnect WhatsApp session')
+    }
+    return res.json()
+  },
+
+  async getNotificationLogs(limit = 20): Promise<NotificationLog[]> {
+    const res = await fetch(`/api/v1/notifications/logs?limit=${limit}`, {
+      headers: getAuthHeader(),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to fetch notification logs')
+    }
+    return res.json()
+  },
 }
+
+export const api = posApi

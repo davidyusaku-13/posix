@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Plus, Search, AlertTriangle, Edit3, ArrowUpDown, Box, RefreshCw } from 'lucide-react'
+import { Plus, Search, AlertTriangle, Edit3, ArrowUpDown, Box, RefreshCw, MessageSquare } from 'lucide-react'
 import type { CreateProductInput, Product, UpdateProductInput } from '../types/pos'
 import { formatCents } from '../utils/format'
 import { ProductModal } from './ProductModal'
+import { WhatsAppModal } from './WhatsAppModal'
 
 interface InventoryManagerProps {
   products: Product[]
@@ -23,6 +24,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
   const [showLowStockOnly, setShowLowStockOnly] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false)
   const [restockProductId, setRestockProductId] = useState<number | null>(null)
   const [customDeltaStr, setCustomDeltaStr] = useState('')
   const [isAdjusting, setIsAdjusting] = useState(false)
@@ -115,8 +117,8 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
           />
         </div>
 
-        {/* Low Stock Filter Switch */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Low Stock Filter Switch & WhatsApp Alerts */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setShowLowStockOnly(!showLowStockOnly)}
             className={`px-3 py-1.5 rounded-none text-xs font-bold flex items-center gap-1.5 transition border ${
@@ -127,6 +129,16 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
           >
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Low Stock ({lowStockCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsWhatsAppOpen(true)}
+            title="Configure WhatsApp Low Stock Notifications"
+            className="px-3 py-1.5 rounded-none text-xs font-bold flex items-center gap-1.5 transition border bg-[#fdf3e7] text-[#8f4d08] hover:bg-[#fae7ce] border-[#f4d3a8] shadow-2xs"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>WhatsApp Alerts</span>
           </button>
         </div>
       </div>
@@ -275,6 +287,11 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
           onSaveUpdate={onUpdateProduct}
         />
       )}
+
+      <WhatsAppModal
+        isOpen={isWhatsAppOpen}
+        onClose={() => setIsWhatsAppOpen(false)}
+      />
     </div>
   )
 }

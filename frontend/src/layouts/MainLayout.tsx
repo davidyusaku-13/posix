@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { Clock, RefreshCw, PanelLeft } from 'lucide-react'
+import { Clock, RefreshCw, PanelLeft, MessageSquare } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+import { WhatsAppModal } from '../components/WhatsAppModal'
 
 interface MainLayoutProps {
   lowStockCount: number
@@ -16,6 +18,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   onNewSale,
 }) => {
   const { clearCart } = useCart()
+  const { hasRole } = useAuth()
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false)
   const [time, setTime] = useState<string>(new Date().toLocaleTimeString())
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     return localStorage.getItem('posix_sidebar_collapsed') === 'true'
@@ -104,6 +108,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
 
             <div className="flex items-center space-x-2">
+              {hasRole(['manager', 'admin']) && (
+                <button
+                  type="button"
+                  onClick={() => setIsWhatsAppOpen(true)}
+                  title="WhatsApp Low Stock Notifications"
+                  className="px-2.5 py-1 text-xs font-semibold bg-[#fdf3e7] text-[#8f4d08] hover:bg-[#fae7ce] border border-[#f4d3a8] rounded-none flex items-center gap-1.5 transition shadow-2xs"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">WhatsApp Alerts</span>
+                </button>
+              )}
+
               <button
                 onClick={onRefreshCatalog}
                 title="Reload catalog and products"
@@ -129,6 +145,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           <Outlet />
         </main>
       </div>
+
+      <WhatsAppModal
+        isOpen={isWhatsAppOpen}
+        onClose={() => setIsWhatsAppOpen(false)}
+      />
     </div>
   )
 }
