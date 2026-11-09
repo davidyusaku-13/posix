@@ -39,7 +39,12 @@ func StartSupervisedBridge(bridgeDir, bridgeURL string) *BridgeSupervisor {
 	}
 
 	// 2. Check if bridge directory and entrypoint exist
-	entrypoint := filepath.Join(bridgeDir, "index.ts")
+	absBridgeDir, err := filepath.Abs(bridgeDir)
+	if err != nil {
+		absBridgeDir = bridgeDir
+	}
+
+	entrypoint := filepath.Join(absBridgeDir, "index.ts")
 	if _, err := os.Stat(entrypoint); os.IsNotExist(err) {
 		return nil
 	}
@@ -58,12 +63,12 @@ func StartSupervisedBridge(bridgeDir, bridgeURL string) *BridgeSupervisor {
 
 	var cmd *exec.Cmd
 	if useBun {
-		cmd = exec.Command(runtimeBin, "run", entrypoint)
+		cmd = exec.Command(runtimeBin, "run", "index.ts")
 	} else {
-		cmd = exec.Command(runtimeBin, entrypoint)
+		cmd = exec.Command(runtimeBin, "index.ts")
 	}
 
-	cmd.Dir = bridgeDir
+	cmd.Dir = absBridgeDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
