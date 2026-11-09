@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Terminal, Lock, User, Delete, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react'
 import type { User as UserType } from '../types/pos'
-import { posApi } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 interface LoginScreenProps {
-  onLoginSuccess: (user: UserType) => void
+  onLoginSuccess?: (user: UserType) => void
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
+  const { loginWithPin, loginWithCredentials } = useAuth()
   const [pin, setPin] = useState('')
   const [usePasswordMode, setUsePasswordMode] = useState(false)
   const [username, setUsername] = useState('admin')
@@ -41,8 +42,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setIsLoading(true)
     setErrorMsg(null)
     try {
-      const auth = await posApi.login({ pin: pinToSubmit })
-      onLoginSuccess(auth.user)
+      const user = await loginWithPin(pinToSubmit)
+      onLoginSuccess?.(user)
     } catch (err: any) {
       setErrorMsg(err.message || 'Invalid PIN')
       setPin('')
@@ -56,8 +57,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setIsLoading(true)
     setErrorMsg(null)
     try {
-      const auth = await posApi.login({ username, password })
-      onLoginSuccess(auth.user)
+      const user = await loginWithCredentials(username, password)
+      onLoginSuccess?.(user)
     } catch (err: any) {
       setErrorMsg(err.message || 'Login failed')
     } finally {
@@ -139,6 +140,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
                 <button
                   key={digit}
+                  type="button"
                   onClick={() => handleNumpad(digit)}
                   className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl shadow-2xs active:scale-95 transition"
                 >
@@ -146,18 +148,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 </button>
               ))}
               <button
+                type="button"
                 onClick={handleClear}
                 className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold text-xs active:scale-95 transition uppercase"
               >
                 Clear
               </button>
               <button
+                type="button"
                 onClick={() => handleNumpad('0')}
                 className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl active:scale-95 transition shadow-2xs"
               >
                 0
               </button>
               <button
+                type="button"
                 onClick={handleBackspace}
                 className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold flex items-center justify-center active:scale-95 transition"
               >
@@ -172,18 +177,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               </span>
               <div className="flex gap-1.5 justify-center">
                 <button
+                  type="button"
                   onClick={() => quickLogin('0000')}
                   className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-md transition"
                 >
                   Cashier (0000)
                 </button>
                 <button
+                  type="button"
                   onClick={() => quickLogin('5678')}
                   className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-md transition"
                 >
                   Manager (5678)
                 </button>
                 <button
+                  type="button"
                   onClick={() => quickLogin('1234')}
                   className="px-2 py-1 bg-slate-100 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-md transition"
                 >
