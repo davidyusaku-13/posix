@@ -1,6 +1,9 @@
-# POSIX — Point of Sale Interactive eXperience
+# POSIX
 
-POSIX is a lightweight, offline-first Point of Sale (POS) system engineered for retail terminals. It is distributed as a single, self-contained executable on Linux, combining an embedded Go HTTP/REST backend, an embedded SQLite WAL database, and a compiled React + Vite + Tailwind cashier terminal.
+POSIX is a lightweight, offline-first Point of Sale (POS) web application distributed as a single self-contained executable. It is completely cross-platform and available for all operating systems (Linux, macOS, Windows).
+
+> **Why the name POSIX?**  
+> There is no backronym or acronym meaning—it's simply called **POSIX** as a tribute to Unix/Linux by its creator. It runs everywhere.
 
 ---
 

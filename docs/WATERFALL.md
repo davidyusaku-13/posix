@@ -1,6 +1,6 @@
 # POSIX — Software Development Lifecycle: Waterfall Methodology
 
-**Project Name:** POSIX (Point of Sale Interactive eXperience)  
+**Project Name:** POSIX  
 **Governing Methodology:** Waterfall Model  
 **Core Engineering Pillars:** Waterfall • TDD • SOLID • DRY • REST Best Practices  
 
@@ -100,7 +100,7 @@ The **Waterfall Model** provides strict, phase-gated sequential discipline: **Ev
 - **Features:**
   - Frontend static assets embedded directly into the Go executable via `embed.FS`.
   - Self-migrating and auto-seeding embedded SQLite database.
-  - Zero external runtime dependencies (works offline on any Linux POS machine).
+  - Zero external runtime dependencies (works offline on any operating system: Linux, macOS, Windows).
 - **Exit Gate Criteria:** Standalone binary boots, serves UI on root `/`, serves API on `/api/v1/*`, and successfully executes transactions.
 
 ---

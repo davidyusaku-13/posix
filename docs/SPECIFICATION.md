@@ -1,15 +1,15 @@
-# POSIX — Point of Sale Interactive eXperience
+# POSIX — Requirements Specification (PRD)
 ## Phase 1: Requirements Specification (PRD)
 
 **Project Name:** POSIX  
 **Domain:** Retail & General Store Point of Sale  
-**Architecture:** Local / Standalone, Offline-First Single Binary  
+**Architecture:** Cross-Platform, Offline-First Single Binary Web Application  
 **Methodology:** Waterfall (Requirements → Design → Implementation → Verification → Release)
 
 ---
 
 ### 1. Vision & Objectives
-POSIX is a lightweight, reliable, Linux-native Point of Sale system built for local standalone terminals. It guarantees transaction safety, zero floating-point calculation errors, rapid barcode/keyboard-driven cashier operations, and zero external cloud dependencies.
+POSIX is a lightweight, reliable, cross-platform Point of Sale web application. It runs on any operating system (Linux, macOS, Windows) and browser. It guarantees transaction safety, zero floating-point calculation errors, rapid barcode/keyboard-driven cashier operations, and zero external cloud dependencies.
 
 ---
 
@@ -78,7 +78,7 @@ POSIX is a lightweight, reliable, Linux-native Point of Sale system built for lo
 - **NFR-1 (Reliability & Offline-First)**: Must operate 100% locally with zero internet dependency via embedded SQLite.
 - **NFR-2 (Financial Accuracy)**: No rounding anomalies; exact integer cents throughout.
 - **NFR-3 (Performance)**: Barcode scan-to-cart latency $< 50\text{ms}$.
-- **NFR-4 (Portability & Simplicity)**: The entire application (Go backend + embedded React SPA) compiles into a single executable binary on Linux.
+- **NFR-4 (Portability & Simplicity)**: The entire application (Go backend + embedded React SPA) compiles into a single executable binary across operating systems (Linux, macOS, Windows).
 
 ---
 

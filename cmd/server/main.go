@@ -50,7 +50,7 @@ func main() {
 
 	addr := fmt.Sprintf(":%s", *port)
 	log.Printf("==============================================")
-	log.Printf("  POSIX — Point of Sale Interactive eXperience")
+	log.Printf("  POSIX — Point of Sale")
 	log.Printf("  Listening on http://localhost%s", addr)
 	log.Printf("==============================================")
 
