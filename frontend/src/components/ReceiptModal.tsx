@@ -34,9 +34,15 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
   const modalContent = (
     <div
       id="receipt-modal-portal"
+      role="dialog"
+      aria-modal="true"
+      onClick={onNewSale}
       className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 print:static print:p-0 print:bg-transparent print:backdrop-blur-none print:block"
     >
-      <div className="bg-white border border-slate-200 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 print:border-none print:shadow-none print:max-w-[80mm] print:mx-auto print:rounded-none">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white border border-slate-200 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 print:border-none print:shadow-none print:max-w-[80mm] print:mx-auto print:rounded-none"
+      >
         {/* Success header - Hidden in Print */}
         <div className="bg-emerald-600 px-6 py-4 text-white flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2.5">
