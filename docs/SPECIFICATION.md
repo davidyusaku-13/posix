@@ -86,6 +86,27 @@ POSIX is a lightweight, reliable, cross-platform Point of Sale web application. 
   - On-demand "Send Test Notification" to verify phone number and socket pairing.
 - **FR-8.5 (Non-Blocking Fault Isolation)**: All WhatsApp dispatch operations are strictly asynchronous (via goroutines and background queues). If the WhatsApp socket is disconnected, pairing is pending, or local bridge is unreachable, POS cashier checkout and inventory transactions proceed with 100% reliability and zero user-facing latency.
 
+#### 2.9 Internationalization & Localization (FR-9)
+- **FR-9.1 (Dual-Language Support: English & Indonesian)**: The system provides complete, high-quality localization in English (`en`) and Indonesian (`id` - Bahasa Indonesia) across all views:
+  - **Navigation & Layout**: Sidebar navigation items, header controls, language switcher, network/WhatsApp indicators.
+  - **Register / POS Terminal**: Search inputs, category filters, cart items, price calculations, tax/subtotal labels, clear cart, checkout button.
+  - **Payment & Checkout**: Method toggles (Cash/Card), keypad labels, tendered input, change due, action buttons.
+  - **Thermal Receipt**: Receipt header, order number, cashier attribution, line items, breakdown totals, footer gratitude message.
+  - **Inventory Management**: Catalog table headers, stock status badges (In Stock, Low Stock, Out of Stock), stock adjustment modal, product modal.
+  - **Order History & Reports**: Date/time headers, cashier filters, sales recap metrics (Gross Sales, Net Sales, Tax, Order Count), itemized order detail modal.
+  - **Staff / User Management**: User list, role badges (Cashier, Manager, Admin), credential forms, deactivate toggles.
+  - **WhatsApp Settings**: Connection status labels, pairing instructions, phone number format previews, test notification button, audit logs.
+  - **Confirmation Dialogs**: Reusable modals for cart voiding, staff removal, and unsaved changes.
+- **FR-9.2 (Locale-Aware Currency & Number Formatting)**:
+  - Preserves exact integer minor units (cents) while formatting numbers and currencies to match the selected locale (`en` vs `id`).
+  - Standard Indonesian decimal/thousand separators (`Rp` format with period thousands separators, e.g., `Rp 15.000`) and English standard (`$15.00`).
+- **FR-9.3 (Client Persistence & Auto-Detection)**:
+  - Language preference is stored in `localStorage` (`posix_language`) and restored immediately upon load.
+  - Defaults to browser locale (`navigator.language`) if no preference is saved.
+- **FR-9.4 (Type-Safe Dictionary Architecture)**:
+  - Implements typed translation key trees to ensure zero missing translation keys at compile time.
+  - Adheres to Open-Closed Principle (OCP) enabling straightforward addition of further language packs.
+
 ---
 
 ### 3. Non-Functional Requirements

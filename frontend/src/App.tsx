@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CartProvider, useCart } from './context/CartContext'
+import { I18nProvider } from './context/I18nContext'
 import { MainLayout } from './layouts/MainLayout'
 import { RegisterPage } from './pages/register/RegisterPage'
 import { InventoryPage } from './pages/inventory/InventoryPage'
@@ -145,11 +146,13 @@ function POSApp() {
 export function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <POSApp />
-        </CartProvider>
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <CartProvider>
+            <POSApp />
+          </CartProvider>
+        </AuthProvider>
+      </I18nProvider>
     </BrowserRouter>
   )
 }

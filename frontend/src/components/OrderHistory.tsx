@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Receipt, DollarSign, ShoppingBag, Banknote, CreditCard, RefreshCw, Eye, AlertTriangle, User } from 'lucide-react'
 import type { CheckoutResponse, Order, OrdersRecap } from '../types/pos'
 import { posApi } from '../services/api'
-import { formatCents } from '../utils/format'
+import { useI18n } from '../context/I18nContext'
 import { OrderDetailModal } from './OrderDetailModal'
 
 interface OrderHistoryProps {
@@ -10,6 +10,7 @@ interface OrderHistoryProps {
 }
 
 export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) => {
+  const { dict, formatCurrency, formatDate } = useI18n()
   const [recap, setRecap] = useState<OrdersRecap | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -70,10 +71,10 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
             <Receipt className="w-6 h-6 text-primary" />
-            Transaction & Order History
+            {dict.orders.title}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            View all-time financial settlement recaps and inspect individual transaction audit receipts
+            {dict.orders.recapTitle}
           </p>
         </div>
 
@@ -91,13 +92,13 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         {/* Total Revenue */}
         <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
-            <span>Total Gross Revenue</span>
+            <span>{dict.orders.grossSales}</span>
             <div className="w-7 h-7 rounded-none bg-[#f5efe6] text-primary flex items-center justify-center">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
-            {recap ? formatCents(recap.totalRevenueCents) : '$0.00'}
+            {formatCurrency(recap ? recap.totalRevenueCents : 0)}
           </div>
           <div className="text-[11px] text-slate-400 mt-1">
             Across {recap?.totalOrders || 0} completed transactions
@@ -107,7 +108,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         {/* Total Orders Count */}
         <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
-            <span>Total Orders</span>
+            <span>{dict.orders.orderCount}</span>
             <div className="w-7 h-7 rounded-none bg-blue-50 text-blue-700 flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
@@ -123,13 +124,13 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         {/* Cash Settled */}
         <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
-            <span>Cash Volume</span>
+            <span>{dict.payment.cash} Volume</span>
             <div className="w-7 h-7 rounded-none bg-amber-50 text-amber-700 flex items-center justify-center">
               <Banknote className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
-            {recap ? formatCents(recap.totalCashCents) : '$0.00'}
+            {formatCurrency(recap ? recap.totalCashCents : 0)}
           </div>
           <div className="text-[11px] text-slate-400 mt-1">
             Net cash drawer collections
@@ -139,13 +140,13 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         {/* Card Settled */}
         <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
-            <span>Card Volume</span>
+            <span>{dict.payment.card} Volume</span>
             <div className="w-7 h-7 rounded-none bg-indigo-50 text-indigo-700 flex items-center justify-center">
               <CreditCard className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
-            {recap ? formatCents(recap.totalCardCents) : '$0.00'}
+            {formatCurrency(recap ? recap.totalCardCents : 0)}
           </div>
           <div className="text-[11px] text-slate-400 mt-1">
             Electronic debit / credit card volume
@@ -157,10 +158,10 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
       <div className="flex-1 bg-white border border-slate-200 rounded-none shadow-xs overflow-hidden flex flex-col">
         <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Transaction Ledger ({validOrders.length})
+            {dict.orders.recapTitle} ({validOrders.length})
           </h3>
           <span className="text-[11px] text-slate-400">
-            Click any row or 'Inspect' to view the focused single order recap
+            Click any row to inspect
           </span>
         </div>
 
@@ -168,14 +169,14 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-wider bg-slate-50/50">
-                <th className="py-2.5 px-4">Receipt Number</th>
-                <th className="py-2.5 px-4">Date & Time</th>
-                <th className="py-2.5 px-4">Cashier</th>
-                <th className="py-2.5 px-4 text-right">Subtotal</th>
-                <th className="py-2.5 px-4 text-right">Tax</th>
-                <th className="py-2.5 px-4 text-right">Total Amount</th>
-                <th className="py-2.5 px-4 text-center">Status</th>
-                <th className="py-2.5 px-4 text-right">Action</th>
+                <th className="py-2.5 px-4">{dict.orders.colOrder}</th>
+                <th className="py-2.5 px-4">{dict.orders.colDate}</th>
+                <th className="py-2.5 px-4">{dict.orders.colCashier}</th>
+                <th className="py-2.5 px-4 text-right">{dict.cart.subtotal}</th>
+                <th className="py-2.5 px-4 text-right">{dict.cart.tax}</th>
+                <th className="py-2.5 px-4 text-right">{dict.orders.colTotal}</th>
+                <th className="py-2.5 px-4 text-center">{dict.orders.colStatus}</th>
+                <th className="py-2.5 px-4 text-right">{dict.inventory.colActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
@@ -189,7 +190,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
                     {o.receiptNumber}
                   </td>
                   <td className="py-3 px-4 font-mono text-slate-500 text-[11px]">
-                    {new Date(o.createdAt).toLocaleString()}
+                    {formatDate(o.createdAt)}
                   </td>
                   <td className="py-3 px-4 text-slate-700 font-medium">
                     {o.cashierName ? (
@@ -202,13 +203,13 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
                     )}
                   </td>
                   <td className="py-3 px-4 text-right font-mono text-slate-600">
-                    {formatCents(o.subtotalCents)}
+                    {formatCurrency(o.subtotalCents)}
                   </td>
                   <td className="py-3 px-4 text-right font-mono text-slate-600">
-                    {formatCents(o.taxCents)}
+                    {formatCurrency(o.taxCents)}
                   </td>
                   <td className="py-3 px-4 text-right font-mono font-extrabold text-primary text-sm">
-                    {formatCents(o.totalCents)}
+                    {formatCurrency(o.totalCents)}
                   </td>
                   <td className="py-3 px-4 text-center">
                     <span className="inline-flex px-2 py-0.5 rounded-none text-[10px] font-bold uppercase bg-[#f5efe6] text-primary border border-[#e2d7c8]">
@@ -224,7 +225,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
                       className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-none transition shadow-2xs border border-slate-200"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>Inspect</span>
+                      <span>{dict.orders.viewDetails}</span>
                     </button>
                   </td>
                 </tr>
@@ -235,8 +236,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
           {orders.length === 0 && !isLoading && (
             <div className="flex flex-col items-center justify-center p-12 text-slate-400">
               <Receipt className="w-10 h-10 mb-2 stroke-[1.2]" />
-              <p className="text-sm font-semibold text-slate-500">No transactions recorded yet</p>
-              <p className="text-xs text-slate-400 mt-1">Complete your first checkout on the Cashier Register</p>
+              <p className="text-sm font-semibold text-slate-500">{dict.orders.noOrders}</p>
             </div>
           )}
         </div>

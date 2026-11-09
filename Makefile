@@ -6,9 +6,10 @@ all: test-all build
 test:
 	go test -v -count=1 ./...
 
-# Run all tests across backend and WhatsApp bridge
+# Run all tests across backend, WhatsApp bridge, and frontend
 test-all: test
 	cd bridge/whatsapp && bun test
+	cd frontend && bun test
 
 # Build React / Vite frontend production bundle
 build-fe:

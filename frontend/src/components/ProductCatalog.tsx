@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { Barcode, Search, Plus, AlertTriangle, Package } from 'lucide-react'
 import type { Product } from '../types/pos'
-import { formatCents } from '../utils/format'
+import { useI18n } from '../context/I18nContext'
 
 interface ProductCatalogProps {
   products: Product[]
@@ -14,6 +14,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   onAddToCart,
   onBarcodeScan,
 }) => {
+  const { t, dict, formatCurrency } = useI18n()
   const [searchTerm, setSearchTerm] = useState('')
   const [scanCode, setScanCode] = useState('')
   const [scanFeedback, setScanFeedback] = useState<{ message: string; isError: boolean } | null>(null)
@@ -57,7 +58,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             type="text"
             value={scanCode}
             onChange={(e) => setScanCode(e.target.value)}
-            placeholder="Scan Barcode or type SKU (e.g. 8901001) & Enter"
+            placeholder={dict.register.searchPlaceholder}
             className="w-full pl-10 pr-24 py-2.5 bg-card border-2 border-primary rounded-none text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 font-mono shadow-xs font-semibold"
             autoFocus
           />
@@ -91,7 +92,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search products by name or SKU..."
+          placeholder={dict.inventory.search}
           className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-none text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 shadow-2xs"
         />
       </div>
@@ -132,18 +133,18 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
                 <div className="mt-3 pt-2.5 border-t border-border/60 flex items-center justify-between">
                   <span className="font-extrabold text-base text-primary font-mono-nums">
-                    {formatCents(product.priceCents)}
+                    {formatCurrency(product.priceCents)}
                   </span>
 
                   <div className="flex items-center gap-1.5">
                     {isOutOfStock ? (
                       <span className="text-[10px] uppercase font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded-none">
-                        Out
+                        {dict.register.outOfStock}
                       </span>
                     ) : isLowStock ? (
                       <span className="text-[10px] font-semibold text-[#8f4d08] bg-[#fdf3e7] border border-[#f4d3a8] px-1.5 py-0.5 rounded-none flex items-center gap-0.5">
                         <AlertTriangle className="w-2.5 h-2.5" />
-                        {product.stockQuantity} left
+                        {t('register.lowStock', { count: product.stockQuantity })}
                       </span>
                     ) : (
                       <span className="text-[11px] text-primary font-mono flex items-center gap-1 bg-[#f5efe6] px-1.5 py-0.5 border border-[#e2d7c8]">
@@ -163,9 +164,9 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-48 text-slate-400">
+          <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
             <Package className="w-8 h-8 mb-2 stroke-[1.5]" />
-            <p className="text-sm font-medium">No products found matching your search</p>
+            <p className="text-sm font-medium">{dict.register.noProductsFound}</p>
           </div>
         )}
       </div>

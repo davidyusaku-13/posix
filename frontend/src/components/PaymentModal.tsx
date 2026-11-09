@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Banknote, CreditCard, X, CheckCircle2, AlertCircle } from 'lucide-react'
-import { formatCents } from '../utils/format'
+import { useI18n } from '../context/I18nContext'
 
 interface PaymentModalProps {
   totalCents: number
@@ -13,13 +13,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onConfirmPayment,
 }) => {
+  const { t, dict, currency, formatCurrency } = useI18n()
   const [method, setMethod] = useState<'cash' | 'card'>('cash')
-  const [cashTenderedStr, setCashTenderedStr] = useState<string>((totalCents / 100).toFixed(2))
+  const [cashTenderedStr, setCashTenderedStr] = useState<string>(
+    currency === 'IDR' ? String(totalCents) : (totalCents / 100).toFixed(2)
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  // Convert input dollars string to integer cents
-  const tenderedCents = Math.round((parseFloat(cashTenderedStr) || 0) * 100)
+  // Convert input string to integer cents
+  const tenderedCents =
+    currency === 'IDR'
+      ? Math.round(parseFloat(cashTenderedStr) || 0)
+      : Math.round((parseFloat(cashTenderedStr) || 0) * 100)
   const changeCents = tenderedCents - totalCents
   const isCashSufficient = tenderedCents >= totalCents
 
@@ -35,7 +41,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   }, [onClose, isSubmitting])
 
   const handleQuickCash = (cents: number) => {
-    setCashTenderedStr((cents / 100).toFixed(2))
+    setCashTenderedStr(currency === 'IDR' ? String(cents) : (cents / 100).toFixed(2))
     setErrorMsg(null)
   }
 
@@ -44,7 +50,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     setErrorMsg(null)
 
     if (method === 'cash' && !isCashSufficient) {
-      setErrorMsg(`Amount tendered is insufficient. Need at least ${formatCents(totalCents)}`)
+      setErrorMsg(
+        t('payment.underpaidWarning', {
+          remaining: formatCurrency(Math.abs(changeCents)),
+        })
+      )
       return
     }
 
@@ -53,7 +63,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       const finalTendered = method === 'cash' ? tenderedCents : totalCents
       await onConfirmPayment(method, finalTendered)
     } catch (err: any) {
-      setErrorMsg(err.message || 'Payment failed')
+      setErrorMsg(err.message || dict.payment.insufficient)
       setIsSubmitting(false)
     }
   }
@@ -74,8 +84,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* Modal Header */}
         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Payment Checkout</h3>
-            <p className="text-xs text-slate-500">Select payment method and complete order</p>
+            <h3 className="text-lg font-bold text-slate-900">{dict.payment.title}</h3>
+            <p className="text-xs text-slate-500">{dict.payment.title}</p>
           </div>
           <button
             onClick={onClose}
@@ -90,10 +100,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* Amount Due Banner */}
           <div className="bg-[#fdf3e7] border border-[#f4d3a8] rounded-none p-4 text-center">
             <span className="text-xs text-[#8f4d08] uppercase tracking-wider font-bold">
-              Total Amount Due
+              {dict.cart.total}
             </span>
             <div className="text-3xl font-extrabold text-primary font-mono font-mono-nums mt-0.5">
-              {formatCents(totalCents)}
+              {formatCurrency(totalCents)}
             </div>
           </div>
 
@@ -112,7 +122,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               }`}
             >
               <Banknote className="w-4 h-4 stroke-[2.5]" />
-              Cash
+              {dict.payment.cash}
             </button>
 
             <button
@@ -128,7 +138,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               }`}
             >
               <CreditCard className="w-4 h-4 stroke-[2.5]" />
-              Credit / Debit Card
+              {dict.payment.card}
             </button>
           </div>
 
@@ -137,19 +147,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Cash Tendered ($)
+                  {dict.payment.amountTendered} ({currency === 'IDR' ? 'Rp' : '$'})
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-mono font-bold text-lg">
-                    $
+                    {currency === 'IDR' ? 'Rp' : '$'}
                   </span>
                   <input
                     type="number"
-                    step="0.01"
+                    step={currency === 'IDR' ? '1000' : '0.01'}
                     min="0"
                     value={cashTenderedStr}
                     onChange={(e) => setCashTenderedStr(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-300 focus:border-primary rounded-none text-xl font-mono font-bold text-slate-900 focus:outline-none shadow-xs"
+                    className="w-full pl-12 pr-3 py-2 bg-white border-2 border-slate-300 focus:border-primary rounded-none text-xl font-mono font-bold text-slate-900 focus:outline-none shadow-xs"
                     autoFocus
                   />
                 </div>
@@ -162,9 +172,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   onClick={() => handleQuickCash(totalCents)}
                   className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-xs rounded-none font-mono font-semibold text-slate-800 border border-slate-300 shadow-2xs transition"
                 >
-                  Exact ({formatCents(totalCents)})
+                  {dict.payment.exact} ({formatCurrency(totalCents)})
                 </button>
-                {[1000, 2000, 5000, 10000].map((preset) => {
+                {(currency === 'IDR'
+                  ? [50000, 100000, 200000, 500000]
+                  : [1000, 2000, 5000, 10000]
+                ).map((preset) => {
                   if (preset < totalCents) return null
                   return (
                     <button
@@ -173,7 +186,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       onClick={() => handleQuickCash(preset)}
                       className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-xs rounded-none font-mono font-semibold text-slate-800 border border-slate-300 shadow-2xs transition"
                     >
-                      {formatCents(preset)}
+                      {formatCurrency(preset)}
                     </button>
                   )
                 })}
@@ -181,27 +194,24 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
               {/* Computed Change */}
               <div className="bg-slate-50 border border-slate-200 rounded-none p-3.5 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-600">Change Due:</span>
+                <span className="text-sm font-semibold text-slate-600">{dict.payment.changeDue}:</span>
                 <span
                   className={`font-mono text-xl font-extrabold ${
                     changeCents < 0 ? 'text-rose-600' : 'text-primary'
                   }`}
                 >
                   {changeCents < 0
-                    ? `Underpaid ${formatCents(Math.abs(changeCents))}`
-                    : formatCents(changeCents)}
+                    ? `${dict.payment.insufficient} (${formatCurrency(Math.abs(changeCents))})`
+                    : formatCurrency(changeCents)}
                 </span>
               </div>
             </div>
           ) : (
             <div className="bg-slate-50 border border-slate-200 rounded-none p-6 text-center space-y-2">
               <CreditCard className="w-10 h-10 text-primary mx-auto" />
-              <p className="text-base font-bold text-slate-900">Terminal Ready</p>
+              <p className="text-base font-bold text-slate-900">{dict.payment.card}</p>
               <p className="text-xs text-slate-500">
-                Customer will tap/insert card for exact total of{' '}
-                <span className="font-mono text-primary font-bold text-sm">
-                  {formatCents(totalCents)}
-                </span>
+                {formatCurrency(totalCents)}
               </p>
             </div>
           )}
@@ -221,7 +231,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-none text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition"
           >
-            Cancel
+            {dict.common.cancel}
           </button>
           <button
             type="button"
@@ -230,7 +240,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             className="px-5 py-2.5 bg-primary hover:bg-primary/90 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-primary-foreground font-bold text-sm rounded-none shadow-md transition flex items-center gap-1.5"
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>{isSubmitting ? 'Processing...' : 'Complete Sale'}</span>
+            <span>{isSubmitting ? dict.payment.processing : dict.payment.completePayment}</span>
           </button>
         </div>
       </div>

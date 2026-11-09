@@ -105,6 +105,15 @@ The **Waterfall Model** provides strict, phase-gated sequential discipline: **Ev
 
 ---
 
+### Phase 6: Internationalization & Localization (FR-9)
+- **Requirements Analysis**: Specifications defined in `docs/SPECIFICATION.md` (FR-9.1 to FR-9.4) for dual-language English & Indonesian localization.
+- **Architectural Design**: `TranslationSchema` interface contract (OCP), `I18nContext` provider (SRP/DIP), and locale-aware number/currency formatting in integer minor units.
+- **TDD Verification**: Automated tests for locale switching, key lookup with interpolation, fallback handling, and Indonesian currency formatting.
+- **Implementation**: Localization of all navigation, POS register, payment modals, receipt, inventory manager, orders ledger, staff manager, and notifications.
+- **Exit Gate Criteria**: 100% test pass on backend & frontend; zero missing translation keys.
+
+---
+
 ## 3. How the 5 Pillars Interlock
 
 | Pillar | Scope | Role in POSIX |

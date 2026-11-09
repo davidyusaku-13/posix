@@ -4,7 +4,9 @@ import { Clock, RefreshCw, PanelLeft, MessageSquare } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { useI18n } from '../context/I18nContext'
 import { WhatsAppModal } from '../components/WhatsAppModal'
+import { LanguageSwitcher } from '../components/common/LanguageSwitcher'
 
 interface MainLayoutProps {
   lowStockCount: number
@@ -19,6 +21,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   const { clearCart } = useCart()
   const { hasRole } = useAuth()
+  const { dict } = useI18n()
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false)
   const [time, setTime] = useState<string>(new Date().toLocaleTimeString())
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
@@ -58,15 +61,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const getPageTitle = (pathname: string) => {
     switch (pathname) {
       case '/inventory':
-        return 'Inventory'
+        return dict.nav.inventory
       case '/history':
-        return 'Orders'
+        return dict.nav.orders
       case '/users':
-        return 'Staff'
+        return dict.nav.staff
       case '/':
       case '/register':
       default:
-        return 'Register'
+        return dict.nav.register
     }
   }
 
@@ -108,6 +111,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
 
             <div className="flex items-center space-x-2">
+              <LanguageSwitcher />
+
               {hasRole(['manager', 'admin']) && (
                 <button
                   type="button"
@@ -116,7 +121,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                   className="px-2.5 py-1 text-xs font-semibold bg-[#fdf3e7] text-[#8f4d08] hover:bg-[#fae7ce] border border-[#f4d3a8] rounded-none flex items-center gap-1.5 transition shadow-2xs"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">WhatsApp Alerts</span>
+                  <span className="hidden sm:inline">WhatsApp</span>
                 </button>
               )}
 
@@ -133,7 +138,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                   onClick={handleNewSale}
                   className="text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground px-3 py-1.5 rounded-none border border-border font-semibold transition shadow-2xs"
                 >
-                  New Sale
+                  {dict.receipt.newSale}
                 </button>
               )}
             </div>

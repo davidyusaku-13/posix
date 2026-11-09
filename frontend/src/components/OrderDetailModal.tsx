@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { X, Printer, Receipt, Banknote, CreditCard } from 'lucide-react'
 import type { CheckoutResponse } from '../types/pos'
-import { formatCents } from '../utils/format'
+import { useI18n } from '../context/I18nContext'
 
 interface OrderDetailModalProps {
   orderDetail: CheckoutResponse
@@ -14,6 +14,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   onClose,
   onReprint,
 }) => {
+  const { dict, formatCurrency, formatDate } = useI18n()
   const { order, items, payment } = orderDetail
 
   // Dismiss on Escape key
@@ -50,10 +51,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 </span>
               </h3>
               <div className="flex items-center gap-2 text-xs text-slate-500 font-mono mt-0.5">
-                <span>{new Date(order.createdAt).toLocaleString()}</span>
+                <span>{formatDate(order.createdAt)}</span>
                 {order.cashierName && (
                   <span className="text-slate-700 font-sans font-semibold">
-                    • Cashier: <span className="font-bold text-primary">{order.cashierName}</span>
+                    • {dict.orders.colCashier}: <span className="font-bold text-primary">{order.cashierName}</span>
                   </span>
                 )}
               </div>
@@ -95,10 +96,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                         {item.quantity}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-600">
-                        {formatCents(item.unitPriceCents)}
+                        {formatCurrency(item.unitPriceCents)}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
-                        {formatCents(item.lineSubtotalCents)}
+                        {formatCurrency(item.lineSubtotalCents)}
                       </td>
                     </tr>
                   ))}
@@ -110,16 +111,16 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           {/* Financial Breakdown */}
           <div className="bg-slate-50 border border-slate-200 rounded-none p-4 space-y-2 text-xs">
             <div className="flex justify-between text-slate-600">
-              <span>Subtotal</span>
-              <span className="font-mono font-semibold text-slate-800">{formatCents(order.subtotalCents)}</span>
+              <span>{dict.cart.subtotal}</span>
+              <span className="font-mono font-semibold text-slate-800">{formatCurrency(order.subtotalCents)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Tax Amount</span>
-              <span className="font-mono font-semibold text-slate-800">{formatCents(order.taxCents)}</span>
+              <span>{dict.cart.tax}</span>
+              <span className="font-mono font-semibold text-slate-800">{formatCurrency(order.taxCents)}</span>
             </div>
             <div className="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
-              <span>Grand Total</span>
-              <span className="font-mono text-emerald-700 font-bold text-lg">{formatCents(order.totalCents)}</span>
+              <span>{dict.cart.total}</span>
+              <span className="font-mono text-primary font-bold text-lg">{formatCurrency(order.totalCents)}</span>
             </div>
           </div>
 
@@ -127,24 +128,24 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           <div className="border border-slate-200 rounded-none p-4 space-y-2 text-xs bg-white">
             <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
               {payment.paymentMethod === 'cash' ? (
-                <Banknote className="w-4 h-4 text-emerald-600" />
+                <Banknote className="w-4 h-4 text-primary" />
               ) : (
-                <CreditCard className="w-4 h-4 text-emerald-600" />
+                <CreditCard className="w-4 h-4 text-primary" />
               )}
-              Payment Settlement
+              {dict.receipt.paymentMethod}
             </h4>
             <div className="grid grid-cols-2 gap-2 text-slate-600 pt-1">
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Method</span>
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">{dict.receipt.paymentMethod}</span>
                 <span className="font-bold text-slate-800 uppercase">{payment.paymentMethod}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Amount Tendered</span>
-                <span className="font-mono font-bold text-slate-900">{formatCents(payment.amountTenderedCents)}</span>
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">{dict.receipt.tendered}</span>
+                <span className="font-mono font-bold text-slate-900">{formatCurrency(payment.amountTenderedCents)}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Change Returned</span>
-                <span className="font-mono font-bold text-emerald-700">{formatCents(payment.changeCents)}</span>
+                <span className="text-[10px] text-slate-400 uppercase font-bold block">{dict.receipt.change}</span>
+                <span className="font-mono font-bold text-primary">{formatCurrency(payment.changeCents)}</span>
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-bold block">Reference</span>
@@ -160,14 +161,14 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-none text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition"
           >
-            Close
+            {dict.common.close}
           </button>
           <button
             onClick={() => onReprint(orderDetail)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-none text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+            className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-none text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
           >
             <Printer className="w-4 h-4" />
-            <span>Reprint Receipt</span>
+            <span>{dict.receipt.printReceipt}</span>
           </button>
         </div>
       </div>

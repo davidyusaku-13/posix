@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Printer, CheckCircle, ArrowRight, X } from 'lucide-react'
 import type { CheckoutResponse } from '../types/pos'
-import { formatCents } from '../utils/format'
+import { useI18n } from '../context/I18nContext'
 
 interface ReceiptModalProps {
   receipt: CheckoutResponse
@@ -10,6 +10,7 @@ interface ReceiptModalProps {
 }
 
 export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }) => {
+  const { dict, formatCurrency, formatDate } = useI18n()
   const { order, items, payment } = receipt
 
   // Add body class while receipt modal is open to isolate print stylesheet
@@ -71,11 +72,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
               <p className="text-[10px] text-slate-500 font-medium">Local POS Terminal #1</p>
               {order.cashierName && (
                 <p className="text-[10px] font-semibold text-slate-700 print:text-slate-900">
-                  Cashier: {order.cashierName}
+                  {dict.receipt.cashier}: {order.cashierName}
                 </p>
               )}
               <p className="text-[10px] text-slate-400 font-mono mt-0.5 print:text-slate-600">
-                {new Date(order.createdAt).toLocaleString()}
+                {formatDate(order.createdAt)}
               </p>
             </div>
 
@@ -86,11 +87,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
                   <div className="flex-1 pr-2">
                     <div className="font-bold text-slate-800">{item.productName}</div>
                     <div className="text-[10px] text-slate-500 print:text-slate-600">
-                      {item.quantity} x {formatCents(item.unitPriceCents)}
+                      {item.quantity} x {formatCurrency(item.unitPriceCents)}
                     </div>
                   </div>
                   <div className="font-mono font-bold text-right text-slate-900">
-                    {formatCents(item.lineSubtotalCents)}
+                    {formatCurrency(item.lineSubtotalCents)}
                   </div>
                 </div>
               ))}
@@ -99,38 +100,38 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
             {/* Financial summary */}
             <div className="space-y-1 pt-1 text-[11px]">
               <div className="flex justify-between text-slate-600 print:text-slate-800">
-                <span>Subtotal</span>
-                <span className="font-mono font-semibold text-slate-800">{formatCents(order.subtotalCents)}</span>
+                <span>{dict.receipt.subtotal}</span>
+                <span className="font-mono font-semibold text-slate-800">{formatCurrency(order.subtotalCents)}</span>
               </div>
               <div className="flex justify-between text-slate-600 print:text-slate-800">
-                <span>Sales Tax</span>
-                <span className="font-mono font-semibold text-slate-800">{formatCents(order.taxCents)}</span>
+                <span>{dict.receipt.tax}</span>
+                <span className="font-mono font-semibold text-slate-800">{formatCurrency(order.taxCents)}</span>
               </div>
               <div className="flex justify-between font-bold text-xs pt-1.5 border-t border-slate-300 print:border-slate-800 text-slate-900">
-                <span>TOTAL</span>
-                <span className="font-mono text-sm">{formatCents(order.totalCents)}</span>
+                <span>{dict.receipt.total}</span>
+                <span className="font-mono text-sm">{formatCurrency(order.totalCents)}</span>
               </div>
             </div>
 
             {/* Payment & Change breakdown */}
             <div className="pt-2 border-t border-dashed border-slate-300 print:border-slate-800 space-y-0.5 text-[10px] text-slate-600 print:text-slate-800">
               <div className="flex justify-between">
-                <span>Payment Method</span>
+                <span>{dict.receipt.paymentMethod}</span>
                 <span className="uppercase font-bold text-slate-800">{payment.paymentMethod}</span>
               </div>
               <div className="flex justify-between">
-                <span>Amount Tendered</span>
-                <span className="font-mono font-semibold text-slate-800">{formatCents(payment.amountTenderedCents)}</span>
+                <span>{dict.receipt.tendered}</span>
+                <span className="font-mono font-semibold text-slate-800">{formatCurrency(payment.amountTenderedCents)}</span>
               </div>
               <div className="flex justify-between font-bold text-slate-900 text-[11px] pt-1">
-                <span>Change Due</span>
-                <span className="font-mono text-primary print:text-slate-900">{formatCents(payment.changeCents)}</span>
+                <span>{dict.receipt.change}</span>
+                <span className="font-mono text-primary print:text-slate-900">{formatCurrency(payment.changeCents)}</span>
               </div>
             </div>
 
             {/* Footer */}
             <div className="text-center pt-2 border-t border-dashed border-slate-300 print:border-slate-800 text-[10px] text-slate-400 print:text-slate-600">
-              <p>Thank you for shopping with us!</p>
+              <p>{dict.receipt.thankYou}</p>
               <p className="font-mono text-[9px] mt-0.5">posix-v1 • standalone offline</p>
             </div>
           </div>
@@ -144,7 +145,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
             className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold rounded-none flex items-center justify-center gap-1.5 transition shadow-2xs active:scale-95"
           >
             <Printer className="w-3.5 h-3.5" />
-            Print Receipt
+            {dict.receipt.printReceipt}
           </button>
           <button
             type="button"
@@ -152,7 +153,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
             className="flex-1 py-2 px-3 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-none flex items-center justify-center gap-1.5 transition shadow-md active:scale-95"
             autoFocus
           >
-            <span>Next Customer</span>
+            <span>{dict.receipt.newSale}</span>
             <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
         </div>

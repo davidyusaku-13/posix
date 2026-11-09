@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { api } from '../services/api'
 import type { NotificationConfig, WhatsAppStatus, NotificationLog } from '../types/pos'
+import { useI18n } from '../context/I18nContext'
 import { ConfirmModal } from './common/ConfirmModal'
 
 interface WhatsAppModalProps {
@@ -35,6 +36,7 @@ function normalizePhonePreview(raw: string): string {
 }
 
 export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
+  const { dict, formatDate } = useI18n()
   const [activeTab, setActiveTab] = useState<'connection' | 'settings' | 'logs'>('connection')
 
   // Connection State
@@ -211,10 +213,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             </div>
             <div>
               <h3 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-2">
-                WhatsApp Notifications
+                {dict.whatsapp.title}
               </h3>
               <p className="text-[11px] font-mono text-muted-foreground">
-                Baileys Web Bridge • Store Owner Alerts
+                {dict.whatsapp.connectionStatus}
               </p>
             </div>
           </div>
@@ -563,7 +565,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
               </div>
             ) : logs.length === 0 ? (
               <div className="p-8 border border-border text-center text-xs text-muted-foreground bg-[#faf7f3] rounded-none">
-                No notification events recorded yet.
+                {dict.whatsapp.noLogs}
               </div>
             ) : (
               <div className="border border-border rounded-none overflow-x-auto max-h-80">
@@ -580,7 +582,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                     {logs.map((log) => (
                       <tr key={log.id} className="hover:bg-muted/40 font-mono text-[11px]">
                         <td className="p-2.5 text-muted-foreground whitespace-nowrap">
-                          {log.createdAt}
+                          {formatDate(log.createdAt)}
                         </td>
                         <td className="p-2.5 font-bold uppercase text-foreground">
                           {log.eventType}

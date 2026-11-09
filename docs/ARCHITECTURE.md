@@ -275,7 +275,26 @@ All endpoints use resource nouns (no RPC verbs), proper plural collections, and 
 
 ---
 
-### 7. Test-Driven Development (TDD: Red → Green → Refactor)
+### 7. Internationalization (i18n) Architecture
+
+#### SOLID Design Pattern
+- **Single Responsibility Principle (SRP)**:
+  - `frontend/src/i18n/locales/en.ts` and `id.ts`: Pure translation key-value mappings.
+  - `frontend/src/i18n/formatters.ts`: Dedicated locale-aware currency and date formatting functions honoring integer minor units.
+  - `frontend/src/context/I18nContext.tsx`: Manages locale state, localStorage persistence, and exports `useI18n()`.
+- **Open-Closed Principle (OCP)**:
+  - The dictionary interface `TranslationSchema` enforces compile-time symmetry across all supported languages. Adding a new language (e.g., Japanese, Spanish) requires creating a dictionary file satisfying `TranslationSchema` without modifying component render logic.
+- **Dependency Inversion Principle (DIP)**:
+  - Components depend on the `useI18n()` hook abstraction rather than hardcoded string literals or direct locale checks.
+
+#### Currency & Number Formatting Rules
+- Internally, all values remain strictly integer cents (`int64`).
+- When locale is `en`: Formatted as `$X.XX` with commas for thousands and periods for decimals.
+- When locale is `id`: Formatted as `Rp X.XXX` using standard Indonesian retail conventions.
+
+---
+
+### 8. Test-Driven Development (TDD: Red → Green → Refactor)
 
 1. **Red**: Write unit and contract tests in `*_test.go` specifying required behavior. Verify the test fails.
 2. **Green**: Write the minimal implementation code to make the test pass.

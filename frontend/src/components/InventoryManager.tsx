@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Plus, Search, AlertTriangle, Edit3, ArrowUpDown, Box, RefreshCw, MessageSquare } from 'lucide-react'
 import type { CreateProductInput, Product, UpdateProductInput } from '../types/pos'
-import { formatCents } from '../utils/format'
+import { useI18n } from '../context/I18nContext'
 import { ProductModal } from './ProductModal'
 import { WhatsAppModal } from './WhatsAppModal'
 
@@ -20,6 +20,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
   onUpdateProduct,
   onAdjustStock,
 }) => {
+  const { dict, formatCurrency } = useI18n()
   const [searchTerm, setSearchTerm] = useState('')
   const [showLowStockOnly, setShowLowStockOnly] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -62,10 +63,10 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
             <Box className="w-6 h-6 text-primary" />
-            Inventory & Stock Control
+            {dict.inventory.title}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Monitor real-time inventory counts, restock products, and manage catalog pricing
+            {dict.inventory.filterStock}
           </p>
         </div>
 
@@ -83,7 +84,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
             className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-none shadow-sm flex items-center gap-2 transition"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Product</span>
+            <span>{dict.inventory.addProduct}</span>
           </button>
         </div>
       </div>
@@ -112,7 +113,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by product name, SKU, or barcode..."
+            placeholder={dict.inventory.search}
             className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-none text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
@@ -128,7 +129,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
             }`}
           >
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Low Stock ({lowStockCount})</span>
+            <span>{dict.inventory.lowStockOnly} ({lowStockCount})</span>
           </button>
 
           <button
@@ -149,12 +150,12 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">SKU / Barcode</th>
-                <th className="py-3 px-4">Product Name</th>
-                <th className="py-3 px-4">Unit Price</th>
-                <th className="py-3 px-4 text-center">Stock Level</th>
-                <th className="py-3 px-4 text-center">Min Alert</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-4">{dict.inventory.colSku} / {dict.inventory.colBarcode}</th>
+                <th className="py-3 px-4">{dict.inventory.colName}</th>
+                <th className="py-3 px-4">{dict.inventory.colPrice}</th>
+                <th className="py-3 px-4 text-center">{dict.inventory.colStock}</th>
+                <th className="py-3 px-4 text-center">{dict.inventory.colAlert}</th>
+                <th className="py-3 px-4 text-right">{dict.inventory.colActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -175,7 +176,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
                     </td>
 
                     <td className="py-3 px-4 font-mono font-bold text-slate-900">
-                      {formatCents(p.priceCents)}
+                      {formatCurrency(p.priceCents)}
                     </td>
 
                     <td className="py-3 px-4 text-center font-mono">

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { useI18n } from '../context/I18nContext'
 import type { Role } from '../types/pos'
 
 interface SidebarProps {
@@ -28,8 +29,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { currentUser, logout, hasRole } = useAuth()
   const { totalItemsCount } = useCart()
+  const { dict } = useI18n()
 
   if (!currentUser) return null
+
+  const getRoleLabel = (r: Role) => {
+    switch (r) {
+      case 'admin':
+        return dict.staff.roleAdmin
+      case 'manager':
+        return dict.staff.roleManager
+      case 'cashier':
+      default:
+        return dict.staff.roleCashier
+    }
+  }
 
   const getRoleBadge = (r: Role) => {
     switch (r) {
@@ -109,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Register (All roles) */}
           <NavLink to="/" end className={navItemClass}>
             <ShoppingCart className="w-4 h-4 shrink-0" />
-            {!isCollapsed && <span className="flex-1">Register</span>}
+            {!isCollapsed && <span className="flex-1">{dict.nav.register}</span>}
             {totalItemsCount > 0 &&
               (isCollapsed ? (
                 <span className="absolute -top-1 -right-1 px-1 min-w-4 h-4 flex items-center justify-center text-[9px] font-mono font-bold bg-[#c26d17] text-white rounded-none shadow-xs">
@@ -122,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ))}
             {isCollapsed && (
               <div className="hidden group-hover:flex absolute left-full ml-2 px-2.5 py-1 bg-foreground text-background text-xs font-bold rounded-none whitespace-nowrap z-50 pointer-events-none shadow-md items-center">
-                Register
+                {dict.nav.register}
               </div>
             )}
           </NavLink>
@@ -131,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {hasRole(['manager', 'admin']) && (
             <NavLink to="/inventory" className={navItemClass}>
               <Boxes className="w-4 h-4 shrink-0" />
-              {!isCollapsed && <span className="flex-1">Inventory</span>}
+              {!isCollapsed && <span className="flex-1">{dict.nav.inventory}</span>}
               {lowStockCount > 0 &&
                 (isCollapsed ? (
                   <span
@@ -148,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ))}
               {isCollapsed && (
                 <div className="hidden group-hover:flex absolute left-full ml-2 px-2.5 py-1 bg-foreground text-background text-xs font-bold rounded-none whitespace-nowrap z-50 pointer-events-none shadow-md items-center">
-                  Inventory
+                  {dict.nav.inventory}
                 </div>
               )}
             </NavLink>
@@ -158,10 +172,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {hasRole(['manager', 'admin']) && (
             <NavLink to="/history" className={navItemClass}>
               <Receipt className="w-4 h-4 shrink-0" />
-              {!isCollapsed && <span className="flex-1">Orders</span>}
+              {!isCollapsed && <span className="flex-1">{dict.nav.orders}</span>}
               {isCollapsed && (
                 <div className="hidden group-hover:flex absolute left-full ml-2 px-2.5 py-1 bg-foreground text-background text-xs font-bold rounded-none whitespace-nowrap z-50 pointer-events-none shadow-md items-center">
-                  Orders
+                  {dict.nav.orders}
                 </div>
               )}
             </NavLink>
@@ -171,10 +185,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {hasRole(['admin']) && (
             <NavLink to="/users" className={navItemClass}>
               <Users className="w-4 h-4 shrink-0" />
-              {!isCollapsed && <span className="flex-1">Staff</span>}
+              {!isCollapsed && <span className="flex-1">{dict.nav.staff}</span>}
               {isCollapsed && (
                 <div className="hidden group-hover:flex absolute left-full ml-2 px-2.5 py-1 bg-foreground text-background text-xs font-bold rounded-none whitespace-nowrap z-50 pointer-events-none shadow-md items-center">
-                  Staff
+                  {dict.nav.staff}
                 </div>
               )}
             </NavLink>
@@ -187,19 +201,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-3 border-t border-border bg-muted/40 flex flex-col items-center">
           <div
             className="w-10 h-10 rounded-none bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-2xs group relative cursor-default"
-            title={`${currentUser.name} (${currentUser.role})`}
+            title={`${currentUser.name} (${getRoleLabel(currentUser.role)})`}
           >
             {currentUser.name.charAt(0).toUpperCase()}
             <div className="hidden group-hover:flex absolute left-full ml-2 px-2.5 py-1 bg-foreground text-background text-xs font-bold rounded-none whitespace-nowrap z-50 pointer-events-none shadow-md flex-col">
               <span>{currentUser.name}</span>
-              <span className="text-[10px] opacity-75 font-mono uppercase">{currentUser.role}</span>
+              <span className="text-[10px] opacity-75 font-mono uppercase">{getRoleLabel(currentUser.role)}</span>
             </div>
           </div>
 
           <button
             type="button"
             onClick={logout}
-            title="Lock terminal / Switch cashier"
+            title={dict.nav.signOut}
             className="mt-2.5 w-10 h-8 rounded-none text-muted-foreground hover:text-destructive hover:bg-destructive/10 border border-border transition flex items-center justify-center shadow-2xs"
           >
             <LogOut className="w-4 h-4" />
@@ -222,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       currentUser.role
                     )}`}
                   >
-                    {currentUser.role}
+                    {getRoleLabel(currentUser.role)}
                   </span>
                 </div>
               </div>
@@ -231,7 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={logout}
-              title="Lock terminal / Switch cashier"
+              title={dict.nav.signOut}
               className="p-1.5 rounded-none text-muted-foreground hover:text-destructive hover:bg-destructive/10 border border-border transition shrink-0"
             >
               <LogOut className="w-4 h-4" />

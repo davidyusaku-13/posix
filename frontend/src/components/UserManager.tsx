@@ -2,9 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Users, UserPlus, X, Edit3, Trash2, RefreshCw, AlertCircle } from 'lucide-react'
 import type { Role, UpdateUserInput, User } from '../types/pos'
 import { posApi } from '../services/api'
+import { useI18n } from '../context/I18nContext'
 import { ConfirmModal } from './common/ConfirmModal'
 
 export const UserManager: React.FC = () => {
+  const { dict, formatDate, t } = useI18n()
   const [users, setUsers] = useState<User[]>([])
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
@@ -162,10 +164,10 @@ export const UserManager: React.FC = () => {
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
             <Users className="w-6 h-6 text-primary" />
-            Staff & User Management (RBAC)
+            {dict.staff.title}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage terminal staff, assign hierarchical roles, and configure fast numeric PINs
+            {dict.staff.credentialHelp}
           </p>
         </div>
 
@@ -182,7 +184,7 @@ export const UserManager: React.FC = () => {
             className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-none shadow-sm flex items-center gap-2 transition"
           >
             <UserPlus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Staff Member</span>
+            <span>{dict.staff.addUser}</span>
           </button>
         </div>
       </div>
@@ -193,12 +195,12 @@ export const UserManager: React.FC = () => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Staff Member</th>
-                <th className="py-3 px-4">Username</th>
-                <th className="py-3 px-4">Role</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4">Created Date</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-4">{dict.staff.colDisplayName}</th>
+                <th className="py-3 px-4">{dict.staff.colUsername}</th>
+                <th className="py-3 px-4">{dict.staff.colRole}</th>
+                <th className="py-3 px-4 text-center">{dict.staff.colStatus}</th>
+                <th className="py-3 px-4">{dict.orders.colDate}</th>
+                <th className="py-3 px-4 text-right">{dict.inventory.colActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -225,17 +227,17 @@ export const UserManager: React.FC = () => {
                     {u.active ? (
                       <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary bg-[#f5efe6] border border-[#e2d7c8] px-2 py-0.5 rounded-none">
                         <span className="w-1.5 h-1.5 rounded-none bg-primary" />
-                        Active
+                        {dict.staff.active}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-none">
-                        Deactivated
+                        {dict.staff.inactive}
                       </span>
                     )}
                   </td>
 
                   <td className="py-3 px-4 font-mono text-slate-400 text-[11px]">
-                    {new Date(u.createdAt).toLocaleDateString()}
+                    {formatDate(u.createdAt)}
                   </td>
 
                   <td className="py-3 px-4 text-right">
@@ -508,9 +510,9 @@ export const UserManager: React.FC = () => {
       {/* Reusable Delete Staff Confirmation Modal */}
       <ConfirmModal
         isOpen={!!deletingUser}
-        title="Delete Staff Member?"
-        cancelLabel="Cancel"
-        confirmLabel="Delete Staff"
+        title={dict.staff.deactivateConfirmTitle}
+        cancelLabel={dict.common.cancel}
+        confirmLabel={dict.staff.deactivate}
         variant="danger"
         confirmIcon={<Trash2 className="w-3.5 h-3.5" />}
         isLoading={isDeleting}
@@ -533,7 +535,7 @@ export const UserManager: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-500 leading-relaxed">
-              Are you sure you want to delete this staff account? Their terminal access, PIN credentials, and role privileges will be permanently revoked.
+              {t('staff.deactivateConfirmMessage', { name: deletingUser.name })}
             </p>
           </>
         )}

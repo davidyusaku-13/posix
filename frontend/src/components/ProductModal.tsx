@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Check, PackagePlus, AlertCircle } from 'lucide-react'
 import type { CreateProductInput, Product, UpdateProductInput } from '../types/pos'
+import { useI18n } from '../context/I18nContext'
 
 interface ProductModalProps {
   product?: Product | null // If null/undefined, we are creating; if present, we are editing
@@ -15,6 +16,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onSaveCreate,
   onSaveUpdate,
 }) => {
+  const { dict, currency } = useI18n()
   const isEditing = !!product
 
   const [name, setName] = useState(product?.name || '')
@@ -114,7 +116,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <div className="flex items-center gap-2">
             <PackagePlus className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-bold text-slate-900">
-              {isEditing ? `Edit Product: ${product.name}` : 'Add New Product'}
+              {isEditing ? `${dict.inventory.editProduct}: ${product.name}` : dict.inventory.addProduct}
             </h3>
           </div>
           <button
@@ -129,7 +131,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Product Name *
+              {dict.inventory.colName} *
             </label>
             <input
               type="text"
@@ -145,7 +147,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                SKU *
+                {dict.inventory.colSku} *
               </label>
               <input
                 type="text"
@@ -159,7 +161,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Barcode *
+                {dict.inventory.colBarcode} *
               </label>
               <input
                 type="text"
@@ -176,22 +178,22 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Price ($) *
+                {dict.inventory.colPrice} ({currency === 'IDR' ? 'Rp' : '$'}) *
               </label>
               <input
                 type="number"
-                step="0.01"
+                step={currency === 'IDR' ? '1000' : '0.01'}
                 min="0"
                 required
                 value={priceStr}
                 onChange={(e) => setPriceStr(e.target.value)}
-                placeholder="0.00"
+                placeholder={currency === 'IDR' ? '15000' : '0.00'}
                 className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-none text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-2xs"
               />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Sales Tax (%)
+                {dict.inventory.taxRateLabel}
               </label>
               <input
                 type="number"
@@ -209,7 +211,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Initial Stock
+                  {dict.inventory.colStock}
                 </label>
                 <input
                   type="number"
@@ -222,7 +224,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Low Stock Alert
+                  {dict.inventory.colAlert}
                 </label>
                 <input
                   type="number"
@@ -279,7 +281,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-none text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
             >
-              Cancel
+              {dict.common.cancel}
             </button>
             <button
               type="submit"
@@ -287,7 +289,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               className="px-5 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-sm rounded-none shadow-sm transition flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
-              <span>{isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Product'}</span>
+              <span>{isSubmitting ? dict.common.loading : isEditing ? dict.common.save : dict.inventory.addProduct}</span>
             </button>
           </div>
         </form>
