@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Clock, RefreshCw, PanelLeft, MessageSquare } from 'lucide-react'
 import { Sidebar } from './Sidebar'
-import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useI18n } from '../context/I18nContext'
 import { WhatsAppModal } from '../components/WhatsAppModal'
@@ -11,15 +10,12 @@ import { LanguageSwitcher } from '../components/common/LanguageSwitcher'
 interface MainLayoutProps {
   lowStockCount: number
   onRefreshCatalog: () => void
-  onNewSale?: () => void
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({
   lowStockCount,
   onRefreshCatalog,
-  onNewSale,
 }) => {
-  const { clearCart } = useCart()
   const { hasRole } = useAuth()
   const { dict } = useI18n()
   const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false)
@@ -28,8 +24,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     return localStorage.getItem('posix_sidebar_collapsed') === 'true'
   })
   const location = useLocation()
-
-  const handleNewSale = onNewSale || clearCart
 
   const toggleSidebar = () => {
     setIsCollapsed((prev) => {
@@ -72,8 +66,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         return dict.nav.register
     }
   }
-
-  const isRegister = location.pathname === '/' || location.pathname === '/register'
 
   return (
     <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden font-sans">
@@ -132,15 +124,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
-
-              {isRegister && (
-                <button
-                  onClick={handleNewSale}
-                  className="text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground px-3 py-1.5 rounded-none border border-border font-semibold transition shadow-2xs"
-                >
-                  {dict.receipt.newSale}
-                </button>
-              )}
             </div>
           </div>
         </header>
