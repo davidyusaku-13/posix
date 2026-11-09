@@ -6,17 +6,38 @@ import { PaymentModal } from './components/PaymentModal'
 import { ReceiptModal } from './components/ReceiptModal'
 import { InventoryManager } from './components/InventoryManager'
 import { OrderHistory } from './components/OrderHistory'
-import type { Product, CartItem, CheckoutResponse, CreateProductInput, UpdateProductInput } from './types/pos'
+import { UserManager } from './components/UserManager'
+import { LoginScreen } from './components/LoginScreen'
+import type { Product, CartItem, CheckoutResponse, CreateProductInput, UpdateProductInput, User } from './types/pos'
 import { posApi } from './services/api'
 import { computeTaxCents } from './utils/format'
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'cashier' | 'inventory' | 'history'>('cashier')
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+
+  const [activeTab, setActiveTab] = useState<'cashier' | 'inventory' | 'history' | 'users'>('cashier')
   const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isPaymentOpen, setIsPaymentOpen] = useState(false)
   const [completedReceipt, setCompletedReceipt] = useState<CheckoutResponse | null>(null)
+
+  // Verify and restore active session on startup
+  useEffect(() => {
+    async function checkSession() {
+      if (posApi.getToken()) {
+        try {
+          const user = await posApi.getMe()
+          setCurrentUser(user)
+        } catch {
+          setCurrentUser(null)
+        }
+      }
+      setIsCheckingAuth(false)
+    }
+    checkSession()
+  }, [])
 
   const loadProducts = useCallback(async () => {
     try {
@@ -31,8 +52,28 @@ export function App() {
   }, [])
 
   useEffect(() => {
-    loadProducts()
-  }, [loadProducts])
+    if (currentUser) {
+      loadProducts()
+    }
+  }, [currentUser, loadProducts])
+
+  // RBAC Tab Guard: Ensure cashier cannot remain on manager/admin tabs
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.role === 'cashier' && activeTab !== 'cashier') {
+        setActiveTab('cashier')
+      } else if (currentUser.role === 'manager' && activeTab === 'users') {
+        setActiveTab('cashier')
+      }
+    }
+  }, [currentUser, activeTab])
+
+  const handleLogout = async () => {
+    await posApi.logout()
+    setCurrentUser(null)
+    setCart([])
+    setActiveTab('cashier')
+  }
 
   // Low stock count badge
   const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockAlert).length
@@ -139,12 +180,26 @@ export function App() {
     await loadProducts()
   }
 
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-screen bg-slate-100 text-slate-500 font-mono">
+        Initializing POS terminal...
+      </div>
+    )
+  }
+
+  if (!currentUser) {
+    return <LoginScreen onLoginSuccess={setCurrentUser} />
+  }
+
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-100 text-slate-800 overflow-hidden font-sans">
       <Header
         activeTab={activeTab}
         onTabChange={setActiveTab}
         lowStockCount={lowStockCount}
+        currentUser={currentUser}
+        onLogout={handleLogout}
         onReset={handleClearCart}
         onRefreshCatalog={loadProducts}
       />
@@ -186,8 +241,10 @@ export function App() {
             onUpdateProduct={handleUpdateProduct}
             onAdjustStock={handleAdjustStock}
           />
-        ) : (
+        ) : activeTab === 'history' ? (
           <OrderHistory onReprintReceipt={(receipt) => setCompletedReceipt(receipt)} />
+        ) : (
+          <UserManager />
         )}
       </main>
 

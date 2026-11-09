@@ -22,6 +22,7 @@ func setupTestRouter(t *testing.T) http.Handler {
 		t.Fatalf("failed to init test db: %v", err)
 	}
 
+	userRepo := sqlite.NewUserRepository(db)
 	productRepo := sqlite.NewProductRepository(db)
 	orderRepo := sqlite.NewOrderRepository(db)
 	transactor := sqlite.NewTransactor(db)
@@ -29,8 +30,10 @@ func setupTestRouter(t *testing.T) http.Handler {
 
 	productService := service.NewProductService(productRepo)
 	orderService := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry)
+	authService := service.NewAuthService(userRepo)
+	userService := service.NewUserService(userRepo)
 
-	return api.NewRouter(productService, orderService, nil)
+	return api.NewRouter(productService, orderService, authService, userService, nil)
 }
 
 func TestREST_ProductEndpoints(t *testing.T) {
@@ -321,6 +324,89 @@ func TestREST_OrderEndpoints(t *testing.T) {
 		}
 		if len(focused.Items) == 0 {
 			t.Errorf("expected order items in focused recap")
+		}
+	})
+}
+
+func TestREST_AuthAndUserEndpoints(t *testing.T) {
+	router := setupTestRouter(t)
+
+	var token string
+	t.Run("POST /api/v1/auth/login with PIN returns token", func(t *testing.T) {
+		body, _ := json.Marshal(domain.LoginInput{PIN: "1234"}) // admin PIN
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewReader(body))
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d. Body: %s", rr.Code, rr.Body.String())
+		}
+		var authResp domain.AuthResponse
+		if err := json.Unmarshal(rr.Body.Bytes(), &authResp); err != nil {
+			t.Fatalf("failed to parse auth response: %v", err)
+		}
+		if authResp.Token == "" {
+			t.Errorf("expected non-empty auth token")
+		}
+		if authResp.User.Role != domain.RoleAdmin {
+			t.Errorf("expected admin role, got %s", authResp.User.Role)
+		}
+		token = authResp.Token
+	})
+
+	t.Run("GET /api/v1/auth/me returns active authenticated user", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/auth/me", nil)
+		req.Header.Set("Authorization", "Bearer "+token)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d", rr.Code)
+		}
+		var u domain.User
+		if err := json.Unmarshal(rr.Body.Bytes(), &u); err != nil {
+			t.Fatalf("failed to parse me json: %v", err)
+		}
+		if u.Username != "admin" {
+			t.Errorf("expected admin username, got %s", u.Username)
+		}
+	})
+
+	t.Run("GET /api/v1/users lists users", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/users", nil)
+		req.Header.Set("Authorization", "Bearer "+token)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d", rr.Code)
+		}
+		var users []domain.User
+		if err := json.Unmarshal(rr.Body.Bytes(), &users); err != nil {
+			t.Fatalf("failed to parse users json: %v", err)
+		}
+		if len(users) == 0 {
+			t.Errorf("expected users list")
+		}
+	})
+
+	t.Run("POST /api/v1/users creates new staff user", func(t *testing.T) {
+		body, _ := json.Marshal(domain.CreateUserInput{
+			Username: "cashier99",
+			Name:     "Test Staff",
+			Role:     domain.RoleCashier,
+			PIN:      "9999",
+		})
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(body))
+		req.Header.Set("Authorization", "Bearer "+token)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusCreated {
+			t.Fatalf("expected 201 Created, got %d. Body: %s", rr.Code, rr.Body.String())
+		}
+		if rr.Header().Get("Location") == "" {
+			t.Errorf("expected Location header in 201 response")
 		}
 	})
 }

@@ -119,3 +119,56 @@ type OrdersRecap struct {
 	TotalCashCents    int64 `json:"totalCashCents"`
 	TotalCardCents    int64 `json:"totalCardCents"`
 }
+
+// Role defines user access level in RBAC.
+type Role string
+
+const (
+	RoleCashier Role = "cashier"
+	RoleManager Role = "manager"
+	RoleAdmin   Role = "admin"
+)
+
+// User represents an authorized POS terminal operator.
+type User struct {
+	ID           int64     `json:"id"`
+	Username     string    `json:"username"`
+	Name         string    `json:"name"`
+	Role         Role      `json:"role"`
+	PinHash      string    `json:"-"`
+	PasswordHash string    `json:"-"`
+	Active       bool      `json:"active"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+}
+
+// CreateUserInput carries payload to register a staff member.
+type CreateUserInput struct {
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Role     Role   `json:"role"`
+	PIN      string `json:"pin,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+// UpdateUserInput carries metadata updates for a user account.
+type UpdateUserInput struct {
+	Name     string `json:"name"`
+	Role     Role   `json:"role"`
+	PIN      string `json:"pin,omitempty"`
+	Password string `json:"password,omitempty"`
+	Active   *bool  `json:"active,omitempty"`
+}
+
+// LoginInput supports fast PIN login or standard username & password login.
+type LoginInput struct {
+	PIN      string `json:"pin,omitempty"`
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+// AuthResponse returns session token and active user details.
+type AuthResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
+}

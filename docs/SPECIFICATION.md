@@ -59,6 +59,18 @@ POSIX is a lightweight, reliable, Linux-native Point of Sale system built for lo
 - **FR-6.3 (All History Recap / Settlement)**: System provides an aggregate financial summary across all transactions: total completed orders, gross revenue, total tax collected, and payment breakdown (Cash Total vs. Card Total).
 - **FR-6.4 (Focused Single Order Recap)**: Cashiers can select any individual transaction to inspect the complete itemized breakdown (SKUs, quantities, line totals, taxes, tendered, change) with one-click receipt reprinting.
 
+#### 2.7 User Authentication & Role-Based Access Control (FR-7)
+- **FR-7.1 (Role-Based RBAC)**: Three hierarchical roles govern terminal access:
+  - `cashier`: Checkout register, barcode scanning, cart management, and printing receipts.
+  - `manager`: Cashier privileges + Inventory control (restock, add/edit products) + Order History & Settlements.
+  - `admin`: All manager privileges + User Management (create staff, reset credentials, assign roles).
+- **FR-7.2 (Authentication via PIN & Password)**:
+  - Quick 4-6 digit numeric PIN for rapid cashier logins and shift handovers.
+  - Username & Password for administrative logins.
+  - All credentials hashed strictly with `bcrypt`.
+- **FR-7.3 (User Management)**: Admins can create staff accounts, update roles, toggle active status, and reset credentials.
+- **FR-7.4 (Order Attribution)**: Completed orders record the `cashier_id` and `cashier_name` of the active terminal operator.
+
 ---
 
 ### 3. Non-Functional Requirements

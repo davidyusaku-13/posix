@@ -35,6 +35,7 @@ func main() {
 	defer db.Close()
 
 	// Dependency Inversion wiring: Concrete SQLite repos -> Services -> Router
+	userRepo := sqlite.NewUserRepository(db)
 	productRepo := sqlite.NewProductRepository(db)
 	orderRepo := sqlite.NewOrderRepository(db)
 	transactor := sqlite.NewTransactor(db)
@@ -42,8 +43,10 @@ func main() {
 
 	productSvc := service.NewProductService(productRepo)
 	orderSvc := service.NewOrderService(orderRepo, productRepo, transactor, paymentRegistry)
+	authSvc := service.NewAuthService(userRepo)
+	userSvc := service.NewUserService(userRepo)
 
-	router := api.NewRouter(productSvc, orderSvc, posix.StaticFS())
+	router := api.NewRouter(productSvc, orderSvc, authSvc, userSvc, posix.StaticFS())
 
 	addr := fmt.Sprintf(":%s", *port)
 	log.Printf("==============================================")

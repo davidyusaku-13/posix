@@ -95,6 +95,21 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
+
+-- 5. Users & RBAC
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('cashier', 'manager', 'admin')),
+    pin_hash TEXT DEFAULT '',
+    password_hash TEXT DEFAULT '',
+    active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 ```
 
 ---
@@ -161,6 +176,11 @@ All endpoints use resource nouns (no RPC verbs), proper plural collections, and 
 | Get all history recap | `GET` | `/api/v1/orders/recap` | `200 OK` | Aggregate metrics (orders, gross revenue, tax, cash, card) |
 | List recent orders | `GET` | `/api/v1/orders` | `200 OK` | Array of recent orders |
 | Get focused order recap | `GET` | `/api/v1/orders/{id}` | `200 OK` or `404 Not Found` | Order with line items & payment |
+| User login (PIN or Password) | `POST` | `/api/v1/auth/login` | `200 OK` or `401 Unauthorized` | Auth token & user profile |
+| Current user profile | `GET` | `/api/v1/auth/me` | `200 OK` or `401 Unauthorized` | User profile & role |
+| List users (RBAC) | `GET` | `/api/v1/users` | `200 OK` or `403 Forbidden` | List of user accounts |
+| Create user (Admin) | `POST` | `/api/v1/users` | `201 Created` or `403 Forbidden` | Created user object |
+| Update user (Admin) | `PUT` | `/api/v1/users/{id}` | `200 OK` or `403 Forbidden` | Updated user object |
 | Health check | `GET` | `/api/v1/health` | `200 OK` | `{"status":"healthy","system":"POSIX"}` |
 
 #### Standardized Error Schema

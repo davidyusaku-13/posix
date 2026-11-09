@@ -79,3 +79,42 @@ export interface OrdersRecap {
   totalCashCents: number
   totalCardCents: number
 }
+
+export type Role = 'cashier' | 'manager' | 'admin'
+
+export interface User {
+  id: number
+  username: string
+  name: string
+  role: Role
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateUserInput {
+  username: string
+  name: string
+  role: Role
+  pin?: string
+  password?: string
+}
+
+export interface UpdateUserInput {
+  name?: string
+  role?: Role
+  pin?: string
+  password?: string
+  active?: boolean
+}
+
+export interface LoginInput {
+  pin?: string
+  username?: string
+  password?: string
+}
+
+export interface AuthResponse {
+  token: string
+  user: User
+}

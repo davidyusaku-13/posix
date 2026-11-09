@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 
+	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
 )
 
@@ -67,6 +68,20 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('cashier', 'manager', 'admin')),
+    pin_hash TEXT DEFAULT '',
+    password_hash TEXT DEFAULT '',
+    active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 `
 
 // InitDB opens a SQLite database, configures pragmas, runs migrations and seeds default data.
@@ -93,6 +108,11 @@ func InitDB(dsn string) (*sql.DB, error) {
 	// Seed sample retail data if empty
 	if err := SeedSampleProducts(db); err != nil {
 		log.Printf("warning: failed to seed products: %v", err)
+	}
+
+	// Seed default users if empty
+	if err := SeedDefaultUsers(db); err != nil {
+		log.Printf("warning: failed to seed users: %v", err)
 	}
 
 	return db, nil
@@ -144,5 +164,55 @@ func SeedSampleProducts(db *sql.DB) error {
 	}
 
 	log.Printf("Successfully seeded %d sample retail products", len(sampleProducts))
+	return nil
+}
+
+// SeedDefaultUsers creates initial admin, manager, and cashier staff accounts if users table is empty.
+func SeedDefaultUsers(db *sql.DB) error {
+	var count int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		return nil
+	}
+
+	// Default passwords & PINs
+	adminPass, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	adminPin, _ := bcrypt.GenerateFromPassword([]byte("1234"), bcrypt.DefaultCost)
+
+	mgrPass, _ := bcrypt.GenerateFromPassword([]byte("manager123"), bcrypt.DefaultCost)
+	mgrPin, _ := bcrypt.GenerateFromPassword([]byte("5678"), bcrypt.DefaultCost)
+
+	cashierPin, _ := bcrypt.GenerateFromPassword([]byte("0000"), bcrypt.DefaultCost)
+
+	defaultUsers := []struct {
+		username string
+		name     string
+		role     string
+		pin      string
+		pass     string
+	}{
+		{"admin", "System Administrator", "admin", string(adminPin), string(adminPass)},
+		{"manager", "Store Shift Manager", "manager", string(mgrPin), string(mgrPass)},
+		{"cashier", "Front Desk Cashier", "cashier", string(cashierPin), ""},
+	}
+
+	stmt, err := db.Prepare(`
+		INSERT INTO users (username, name, role, pin_hash, password_hash, active)
+		VALUES (?, ?, ?, ?, ?, 1)
+	`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, u := range defaultUsers {
+		if _, err := stmt.Exec(u.username, u.name, u.role, u.pin, u.pass); err != nil {
+			return err
+		}
+	}
+
+	log.Printf("Successfully seeded %d default RBAC staff accounts", len(defaultUsers))
 	return nil
 }

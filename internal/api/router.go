@@ -9,13 +9,28 @@ import (
 )
 
 // NewRouter constructs the HTTP handler conforming to RESTful conventions.
-func NewRouter(productSvc *service.ProductService, orderSvc *service.OrderService, staticFS fs.FS) http.Handler {
+func NewRouter(
+	productSvc *service.ProductService,
+	orderSvc *service.OrderService,
+	authSvc *service.AuthService,
+	userSvc *service.UserService,
+	staticFS fs.FS,
+) http.Handler {
 	productHandler := NewProductHandler(productSvc)
 	orderHandler := NewOrderHandler(orderSvc)
+	authHandler := NewAuthHandler(authSvc)
+	userHandler := NewUserHandler(userSvc)
 
 	mux := http.NewServeMux()
 
 	// REST v1 Endpoints
+	mux.HandleFunc("/api/v1/auth/login", authHandler.HandleLogin)
+	mux.HandleFunc("/api/v1/auth/me", authHandler.HandleMe)
+	mux.HandleFunc("/api/v1/auth/logout", authHandler.HandleLogout)
+
+	mux.HandleFunc("/api/v1/users/", userHandler.HandleUsers)
+	mux.HandleFunc("/api/v1/users", userHandler.HandleUsers)
+
 	mux.HandleFunc("/api/v1/products/", productHandler.HandleProducts)
 	mux.HandleFunc("/api/v1/products", productHandler.HandleProducts)
 	mux.HandleFunc("/api/v1/orders/", orderHandler.HandleOrders)
@@ -54,7 +69,7 @@ func NewRouter(productSvc *service.ProductService, orderSvc *service.OrderServic
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// CORS headers for local dev environment
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Expose-Headers", "Location")
 

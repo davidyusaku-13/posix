@@ -30,6 +30,16 @@ type OrderRepository interface {
 	CountTodayTx(ctx context.Context, tx *sql.Tx, datePrefix string) (int, error)
 }
 
+// UserRepository defines persistence abstractions for user accounts and RBAC credentials (DIP).
+type UserRepository interface {
+	List(ctx context.Context) ([]domain.User, error)
+	FindByID(ctx context.Context, id int64) (*domain.User, error)
+	FindByUsername(ctx context.Context, username string) (*domain.User, error)
+	Create(ctx context.Context, u *domain.User) (*domain.User, error)
+	Update(ctx context.Context, u *domain.User) (*domain.User, error)
+	Delete(ctx context.Context, id int64) error
+}
+
 // Transactor allows executing operations inside an ACID transaction without exposing raw DB details to services.
 type Transactor interface {
 	WithinTransaction(ctx context.Context, fn func(tx *sql.Tx) error) error
