@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { Clock, RefreshCw } from 'lucide-react'
+import { Clock, RefreshCw, PanelLeft } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { useCart } from '../context/CartContext'
 
@@ -17,9 +17,32 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   const { clearCart } = useCart()
   const [time, setTime] = useState<string>(new Date().toLocaleTimeString())
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('posix_sidebar_collapsed') === 'true'
+  })
   const location = useLocation()
 
   const handleNewSale = onNewSale || clearCart
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev
+      localStorage.setItem('posix_sidebar_collapsed', String(next))
+      return next
+    })
+  }
+
+  // Keyboard shortcut: Ctrl+B or Cmd+B
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault()
+        toggleSidebar()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -48,13 +71,27 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   return (
     <div className="flex h-screen w-screen bg-background text-foreground overflow-hidden font-sans">
       {/* Persistent Left Sidebar */}
-      <Sidebar lowStockCount={lowStockCount} />
+      <Sidebar
+        lowStockCount={lowStockCount}
+        isCollapsed={isCollapsed}
+        onToggle={toggleSidebar}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Breadcrumb / Status Bar */}
         <header className="bg-card border-b border-border px-6 py-2.5 flex items-center justify-between select-none shadow-xs shrink-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {isCollapsed && (
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                title="Expand sidebar (Ctrl+B)"
+                className="p-1.5 -ml-1.5 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted border border-border transition"
+              >
+                <PanelLeft className="w-4 h-4" />
+              </button>
+            )}
             <h1 className="text-sm font-extrabold text-foreground tracking-wide font-sans">
               {getPageTitle(location.pathname)}
             </h1>
