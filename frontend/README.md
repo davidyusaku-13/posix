@@ -43,13 +43,13 @@ frontend/src/
 
 ### Development Mode (with API Proxy)
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 The Vite development server runs on `http://localhost:5173` and proxies all `/api/*` requests to the Go backend on `http://localhost:8080`.
 
 ### Production Build
 ```bash
-npm run build
+bun run build
 ```
 Generates production assets into `frontend/dist/`, which are embedded into the Go executable via `embed.FS`.

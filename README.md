@@ -79,7 +79,7 @@ posix/
 
 ### Prerequisites
 - **Go 1.22+**
-- **Node.js 20+** & **npm** (only required if building frontend from source; pre-built bundle is embedded in git)
+- **Bun 1.1+** (only required if building frontend from source; pre-built bundle is embedded in git)
 
 ### Common Commands
 

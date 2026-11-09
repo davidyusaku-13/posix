@@ -8,7 +8,7 @@ test:
 
 # Build React / Vite frontend production bundle
 build-fe:
-	cd frontend && npm install && npm run build
+	cd frontend && bun install && bun run build
 
 # Build Go single binary with embedded frontend
 build-be:
@@ -25,7 +25,7 @@ run: build
 
 # Run Vite dev server for frontend development
 dev-fe:
-	cd frontend && npm run dev
+	cd frontend && bun run dev
 
 # Run Go backend directly
 dev-be:
