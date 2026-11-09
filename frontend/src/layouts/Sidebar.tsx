@@ -8,7 +8,6 @@ import {
   Users,
   LogOut,
   AlertTriangle,
-  ShieldCheck,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react'
@@ -76,12 +75,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Terminal className="w-5 h-5 stroke-[2.5] group-hover:hidden" />
               <PanelLeftOpen className="w-5 h-5 stroke-[2.5] hidden group-hover:block" />
             </button>
-            <div
-              className="mt-2.5 w-8 py-1 flex items-center justify-center bg-[#fdf3e7] border border-[#f4d3a8] rounded-none"
-              title="Terminal #1 Active (Secured)"
-            >
-              <span className="w-2 h-2 rounded-none bg-[#c26d17] animate-pulse" />
-            </div>
           </div>
         ) : (
           <div className="p-4 border-b border-border/60">
@@ -107,14 +100,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               >
                 <PanelLeftClose className="w-4 h-4" />
               </button>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-[#8f4d08] bg-[#fdf3e7] border border-[#f4d3a8] px-2.5 py-1 rounded-none">
-              <span className="flex items-center gap-1.5 font-semibold">
-                <span className="w-2 h-2 rounded-none bg-[#c26d17] animate-pulse" />
-                Terminal #1 Active
-              </span>
-              <ShieldCheck className="w-3.5 h-3.5 text-[#8f4d08]" />
             </div>
           </div>
         )}
