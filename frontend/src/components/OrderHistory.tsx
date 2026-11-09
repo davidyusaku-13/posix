@@ -46,6 +46,8 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
     }
   }
 
+  const validOrders = orders.filter((o) => !!o.cashierName && o.cashierName.trim() !== '')
+
   return (
     <div className="flex flex-col h-full bg-slate-50 p-6 overflow-hidden">
       {/* Top Header */}
@@ -155,7 +157,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
       <div className="flex-1 bg-white border border-slate-200 rounded-none shadow-xs overflow-hidden flex flex-col">
         <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Transaction Ledger ({orders.length})
+            Transaction Ledger ({validOrders.length})
           </h3>
           <span className="text-[11px] text-slate-400">
             Click any row or 'Inspect' to view the focused single order recap
@@ -177,7 +179,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-              {orders.map((o) => (
+              {validOrders.map((o) => (
                 <tr
                   key={o.id}
                   onClick={() => handleInspectOrder(o.id)}

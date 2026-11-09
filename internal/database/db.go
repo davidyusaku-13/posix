@@ -110,6 +110,7 @@ func InitDB(dsn string) (*sql.DB, error) {
 	// Schema evolution / migrations for existing databases
 	_, _ = db.Exec(`ALTER TABLE orders ADD COLUMN cashier_id INTEGER REFERENCES users(id);`)
 	_, _ = db.Exec(`ALTER TABLE orders ADD COLUMN cashier_name TEXT NOT NULL DEFAULT '';`)
+	_, _ = db.Exec(`DELETE FROM orders WHERE cashier_name = '' OR cashier_name IS NULL OR cashier_id IS NULL;`)
 
 	// Seed sample retail data if empty
 	if err := SeedSampleProducts(db); err != nil {
