@@ -3,47 +3,35 @@ import { ProductCatalog } from '../../components/ProductCatalog'
 import { Cart } from '../../components/Cart'
 import { PaymentModal } from '../../components/PaymentModal'
 import { ReceiptModal } from '../../components/ReceiptModal'
-import type { CartItem, CheckoutResponse, Product } from '../../types/pos'
+import type { CheckoutResponse, Product } from '../../types/pos'
 import { posApi } from '../../services/api'
-import { computeTaxCents } from '../../utils/format'
+import { useCart } from '../../context/CartContext'
 
 interface RegisterPageProps {
   products: Product[]
   isLoading: boolean
   onRefreshProducts: () => void
-  cart: CartItem[]
-  onAddToCart: (product: Product) => void
-  onUpdateQuantity: (productId: number, quantity: number) => void
-  onRemoveItem: (productId: number) => void
-  onClearCart: () => void
-  onBarcodeScan: (code: string) => Promise<boolean>
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({
   products,
   isLoading,
   onRefreshProducts,
-  cart,
-  onAddToCart,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
-  onBarcodeScan,
 }) => {
+  const { cart, totalCents, addToCart, updateQuantity, removeItem, clearCart } = useCart()
   const [isPaymentOpen, setIsPaymentOpen] = useState(false)
   const [completedReceipt, setCompletedReceipt] = useState<CheckoutResponse | null>(null)
 
-  // Totals
-  const subtotalCents = cart.reduce(
-    (sum, item) => sum + item.product.priceCents * item.quantity,
-    0
-  )
-  const taxCents = cart.reduce(
-    (sum, item) =>
-      sum + computeTaxCents(item.product.priceCents * item.quantity, item.product.taxRateBps),
-    0
-  )
-  const totalCents = subtotalCents + taxCents
+  const handleBarcodeScan = async (code: string): Promise<boolean> => {
+    try {
+      const product = await posApi.lookupByCode(code)
+      if (!product) return false
+      addToCart(product)
+      return true
+    } catch {
+      return false
+    }
+  }
 
   const handleConfirmPayment = async (
     paymentMethod: 'cash' | 'card',
@@ -61,7 +49,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
 
     setCompletedReceipt(receipt)
     setIsPaymentOpen(false)
-    onClearCart()
+    clearCart()
     onRefreshProducts()
   }
 
@@ -76,8 +64,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
         ) : (
           <ProductCatalog
             products={products}
-            onAddToCart={onAddToCart}
-            onBarcodeScan={onBarcodeScan}
+            onAddToCart={addToCart}
+            onBarcodeScan={handleBarcodeScan}
           />
         )}
       </section>
@@ -86,9 +74,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
       <section className="col-span-5 h-full overflow-hidden">
         <Cart
           items={cart}
-          onUpdateQuantity={onUpdateQuantity}
-          onRemoveItem={onRemoveItem}
-          onClearCart={onClearCart}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeItem}
+          onClearCart={clearCart}
           onCheckout={() => setIsPaymentOpen(true)}
         />
       </section>

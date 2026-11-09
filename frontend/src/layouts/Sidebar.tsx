@@ -2,6 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import { Terminal, ShoppingCart, Boxes, Receipt, Users, LogOut, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 import type { Role } from '../types/pos'
 
 interface SidebarProps {
@@ -10,6 +11,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
   const { currentUser, logout, hasRole } = useAuth()
+  const { totalItemsCount } = useCart()
 
   if (!currentUser) return null
 
@@ -61,7 +63,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
           {/* Register (All roles) */}
           <NavLink to="/" end className={navItemClass}>
             <ShoppingCart className="w-4 h-4" />
-            <span>Cashier Register</span>
+            <span className="flex-1">Cashier Register</span>
+            {totalItemsCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                {totalItemsCount}
+              </span>
+            )}
           </NavLink>
 
           {/* Inventory (Manager & Admin) */}

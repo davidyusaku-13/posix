@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { CartProvider, useCart } from './context/CartContext'
 import { MainLayout } from './layouts/MainLayout'
 import { RegisterPage } from './pages/register/RegisterPage'
 import { InventoryPage } from './pages/inventory/InventoryPage'
 import { HistoryPage } from './pages/history/HistoryPage'
 import { UsersPage } from './pages/users/UsersPage'
 import { LoginPage } from './pages/login/LoginPage'
-import type { CartItem, Product, Role } from './types/pos'
+import type { Product, Role } from './types/pos'
 import { posApi } from './services/api'
 
 // Role-Guarded Route component
@@ -38,8 +39,8 @@ const ProtectedRoute: React.FC<{
 
 function POSApp() {
   const { currentUser } = useAuth()
+  const { syncCartWithProducts } = useCart()
   const [products, setProducts] = useState<Product[]>([])
-  const [cart, setCart] = useState<CartItem[]>([])
   const [isLoadingProducts, setIsLoadingProducts] = useState(true)
 
   const loadProducts = useCallback(async () => {
@@ -47,69 +48,19 @@ function POSApp() {
       setIsLoadingProducts(true)
       const data = await posApi.getProducts()
       setProducts(data)
+      syncCartWithProducts(data)
     } catch (err) {
       console.error('Failed to load products:', err)
     } finally {
       setIsLoadingProducts(false)
     }
-  }, [])
+  }, [syncCartWithProducts])
 
   useEffect(() => {
     if (currentUser) {
       loadProducts()
     }
   }, [currentUser, loadProducts])
-
-  // Cart actions
-  const handleAddToCart = (product: Product) => {
-    if (product.stockQuantity <= 0) return
-
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id)
-      if (existing) {
-        if (existing.quantity >= product.stockQuantity) return prev
-        return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        )
-      }
-      return [...prev, { product, quantity: 1 }]
-    })
-  }
-
-  const handleUpdateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      handleRemoveItem(productId)
-      return
-    }
-    setCart((prev) =>
-      prev.map((item) => {
-        if (item.product.id === productId) {
-          const max = item.product.stockQuantity
-          return { ...item, quantity: Math.min(quantity, max) }
-        }
-        return item
-      })
-    )
-  }
-
-  const handleRemoveItem = (productId: number) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId))
-  }
-
-  const handleClearCart = () => {
-    setCart([])
-  }
-
-  const handleBarcodeScan = async (code: string): Promise<boolean> => {
-    try {
-      const product = await posApi.lookupByCode(code)
-      if (!product) return false
-      handleAddToCart(product)
-      return true
-    } catch {
-      return false
-    }
-  }
 
   const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockAlert).length
 
@@ -125,7 +76,6 @@ function POSApp() {
             <MainLayout
               lowStockCount={lowStockCount}
               onRefreshCatalog={loadProducts}
-              onNewSale={handleClearCart}
             />
           </ProtectedRoute>
         }
@@ -138,12 +88,6 @@ function POSApp() {
               products={products}
               isLoading={isLoadingProducts}
               onRefreshProducts={loadProducts}
-              cart={cart}
-              onAddToCart={handleAddToCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveItem={handleRemoveItem}
-              onClearCart={handleClearCart}
-              onBarcodeScan={handleBarcodeScan}
             />
           }
         />
@@ -154,12 +98,6 @@ function POSApp() {
               products={products}
               isLoading={isLoadingProducts}
               onRefreshProducts={loadProducts}
-              cart={cart}
-              onAddToCart={handleAddToCart}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveItem={handleRemoveItem}
-              onClearCart={handleClearCart}
-              onBarcodeScan={handleBarcodeScan}
             />
           }
         />
@@ -208,7 +146,9 @@ export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <POSApp />
+        <CartProvider>
+          <POSApp />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   )

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Clock, RefreshCw } from 'lucide-react'
 import { Sidebar } from './Sidebar'
+import { useCart } from '../context/CartContext'
 
 interface MainLayoutProps {
   lowStockCount: number
@@ -14,8 +15,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   onRefreshCatalog,
   onNewSale,
 }) => {
+  const { clearCart } = useCart()
   const [time, setTime] = useState<string>(new Date().toLocaleTimeString())
   const location = useLocation()
+
+  const handleNewSale = onNewSale || clearCart
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -71,9 +75,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                 <RefreshCw className="w-4 h-4" />
               </button>
 
-              {isRegister && onNewSale && (
+              {isRegister && (
                 <button
-                  onClick={onNewSale}
+                  onClick={handleNewSale}
                   className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-md border border-slate-300 font-semibold transition shadow-2xs"
                 >
                   New Sale
