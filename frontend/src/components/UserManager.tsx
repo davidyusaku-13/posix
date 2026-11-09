@@ -329,28 +329,33 @@ export const UserManager: React.FC = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Fast PIN (4 Digits)</label>
-                  <input
-                    type="password"
-                    maxLength={6}
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    placeholder="e.g. 1122"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+              <div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Fast PIN</label>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value)}
+                      placeholder="e.g. 1122"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Optional"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Password (Optional)</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
+                <p className="text-[11px] text-slate-400 mt-1 font-medium">
+                  4-6 digit numeric PIN for fast cashier terminal login
+                </p>
               </div>
 
               {errorMsg && (
@@ -430,28 +435,33 @@ export const UserManager: React.FC = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New PIN (Leave blank to keep)</label>
-                  <input
-                    type="password"
-                    maxLength={6}
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    placeholder="••••"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+              <div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New PIN</label>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value)}
+                      placeholder="••••"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New Password (Optional)</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
+                <p className="text-[11px] text-slate-400 mt-1 font-medium">
+                  Leave blank to retain current PIN and password
+                </p>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
