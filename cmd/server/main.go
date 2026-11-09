@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/davidyusaku-13/posix"
 	"github.com/davidyusaku-13/posix/internal/api"
@@ -58,13 +62,43 @@ func main() {
 
 	router := api.NewRouter(productSvc, orderSvc, authSvc, userSvc, notifSvc, posix.StaticFS())
 
+	// Auto-supervise Baileys Bridge if runtime is present
+	bridgeDir := os.Getenv("POSIX_WHATSAPP_BRIDGE_DIR")
+	if bridgeDir == "" {
+		bridgeDir = "bridge/whatsapp"
+	}
+	supervisor := notification.StartSupervisedBridge(bridgeDir, bridgeURL)
+	if supervisor != nil {
+		defer supervisor.Stop()
+	}
+
 	addr := fmt.Sprintf(":%s", *port)
+	server := &http.Server{
+		Addr:    addr,
+		Handler: router,
+	}
+
+	// Graceful shutdown listener (Ctrl+C / SIGINT / SIGTERM)
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-stopChan
+		log.Println("\nShutting down POSIX server...")
+		if supervisor != nil {
+			supervisor.Stop()
+		}
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = server.Shutdown(shutdownCtx)
+	}()
+
 	log.Printf("==============================================")
 	log.Printf("  POSIX — Point of Sale")
 	log.Printf("  Listening on http://localhost%s", addr)
 	log.Printf("==============================================")
 
-	if err := http.ListenAndServe(addr, router); err != nil && err != http.ErrServerClosed {
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server stopped unexpectedly: %v", err)
 	}
 }
