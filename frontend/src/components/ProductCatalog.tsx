@@ -58,12 +58,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             value={scanCode}
             onChange={(e) => setScanCode(e.target.value)}
             placeholder="Scan Barcode or type SKU (e.g. 8901001) & Enter"
-            className="w-full pl-10 pr-24 py-2.5 bg-white border-2 border-emerald-500 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-mono shadow-xs font-semibold"
+            className="w-full pl-10 pr-24 py-2.5 bg-white border-2 border-emerald-500 rounded-none text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 font-mono shadow-xs font-semibold"
             autoFocus
           />
           <button
             type="submit"
-            className="absolute inset-y-1 right-1 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-md transition shadow-xs"
+            className="absolute inset-y-1 right-1 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-none transition shadow-xs"
           >
             Scan
           </button>
@@ -71,7 +71,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
         {scanFeedback && (
           <div
-            className={`mt-1.5 text-xs px-2.5 py-1 rounded font-mono font-medium ${
+            className={`mt-1.5 text-xs px-2.5 py-1 rounded-none font-mono font-medium ${
               scanFeedback.isError
                 ? 'bg-rose-50 text-rose-700 border border-rose-200'
                 : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
@@ -92,7 +92,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search products by name or SKU..."
-          className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 shadow-2xs"
+          className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-none text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 shadow-2xs"
         />
       </div>
 
@@ -108,7 +108,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 key={product.id}
                 disabled={isOutOfStock}
                 onClick={() => onAddToCart(product)}
-                className={`flex flex-col justify-between p-3.5 rounded-xl border text-left transition relative group shadow-xs ${
+                className={`flex flex-col justify-between p-3.5 rounded-none border text-left transition relative group shadow-xs ${
                   isOutOfStock
                     ? 'bg-slate-100/70 border-slate-200 opacity-60 cursor-not-allowed'
                     : 'bg-white hover:bg-emerald-50/20 border-slate-200 hover:border-emerald-500 hover:shadow-md active:scale-[0.98]'
@@ -137,11 +137,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
                   <div className="flex items-center gap-1.5">
                     {isOutOfStock ? (
-                      <span className="text-[10px] uppercase font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] uppercase font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded-none">
                         Out
                       </span>
                     ) : isLowStock ? (
-                      <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                      <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-none flex items-center gap-0.5">
                         <AlertTriangle className="w-2.5 h-2.5" />
                         {product.stockQuantity} left
                       </span>
@@ -152,7 +152,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       </span>
                     )}
 
-                    <div className="w-6 h-6 rounded-md bg-slate-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-slate-500 transition-colors shadow-2xs">
+                    <div className="w-6 h-6 rounded-none bg-slate-100 group-hover:bg-emerald-600 group-hover:text-white flex items-center justify-center text-slate-500 transition-colors shadow-2xs">
                       <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     </div>
                   </div>

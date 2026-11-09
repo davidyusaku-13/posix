@@ -88,7 +88,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
 
       {/* Filter & Search Bar */}
       {errorBanner && (
-        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center justify-between shadow-2xs">
+        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-none text-xs flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{errorBanner}</span>
@@ -102,7 +102,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
           </button>
         </div>
       )}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs mb-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-none border border-slate-200 shadow-xs mb-4">
         {/* Search */}
         <div className="relative flex-1 w-full sm:w-auto">
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
@@ -111,7 +111,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by product name, SKU, or barcode..."
-            className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-none text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
 
@@ -119,7 +119,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => setShowLowStockOnly(!showLowStockOnly)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition border ${
+            className={`px-3 py-1.5 rounded-none text-xs font-bold flex items-center gap-1.5 transition border ${
               showLowStockOnly
                 ? 'bg-amber-500 text-white border-amber-600 shadow-2xs'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200'
@@ -132,7 +132,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
       </div>
 
       {/* Inventory Table */}
-      <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+      <div className="flex-1 bg-white border border-slate-200 rounded-none shadow-xs overflow-hidden flex flex-col">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left border-collapse text-xs">
             <thead>

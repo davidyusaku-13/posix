@@ -36,7 +36,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-slate-200 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150"
+        className="bg-white border border-slate-200 w-full max-w-lg rounded-none shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Header */}
         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
@@ -45,7 +45,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             <div>
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 Order Audit: {order.receiptNumber}
-                <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-none">
                   {order.status}
                 </span>
               </h3>
@@ -56,7 +56,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
+            className="p-1 rounded-none text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -69,7 +69,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
               Itemized Line Items ({items.length})
             </h4>
-            <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+            <div className="border border-slate-200 rounded-none overflow-hidden shadow-2xs">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase text-[10px]">
@@ -103,7 +103,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           </div>
 
           {/* Financial Breakdown */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-xs">
+          <div className="bg-slate-50 border border-slate-200 rounded-none p-4 space-y-2 text-xs">
             <div className="flex justify-between text-slate-600">
               <span>Subtotal</span>
               <span className="font-mono font-semibold text-slate-800">{formatCents(order.subtotalCents)}</span>
@@ -119,7 +119,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           </div>
 
           {/* Payment Settlement Information */}
-          <div className="border border-slate-200 rounded-xl p-4 space-y-2 text-xs bg-white">
+          <div className="border border-slate-200 rounded-none p-4 space-y-2 text-xs bg-white">
             <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
               {payment.paymentMethod === 'cash' ? (
                 <Banknote className="w-4 h-4 text-emerald-600" />
@@ -153,13 +153,13 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition"
+            className="px-4 py-2 rounded-none text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition"
           >
             Close
           </button>
           <button
             onClick={() => onReprint(orderDetail)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-none text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
           >
             <Printer className="w-4 h-4" />
             <span>Reprint Receipt</span>

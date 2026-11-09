@@ -77,7 +77,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
 
         <button
           onClick={loadData}
-          className="p-2 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-slate-600 hover:text-slate-900 transition shadow-2xs flex items-center gap-1.5 text-xs font-semibold"
+          className="p-2 bg-white hover:bg-slate-100 border border-slate-300 rounded-none text-slate-600 hover:text-slate-900 transition shadow-2xs flex items-center gap-1.5 text-xs font-semibold"
         >
           <RefreshCw className="w-4 h-4" />
           <span>Refresh</span>
@@ -87,10 +87,10 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
       {/* Recap of All History (KPI Summary Cards) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {/* Total Revenue */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
             <span>Total Gross Revenue</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-none bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
@@ -103,10 +103,10 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         </div>
 
         {/* Total Orders Count */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
             <span>Total Orders</span>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-none bg-blue-50 text-blue-700 flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
@@ -119,10 +119,10 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         </div>
 
         {/* Cash Settled */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
             <span>Cash Volume</span>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-none bg-amber-50 text-amber-700 flex items-center justify-center">
               <Banknote className="w-4 h-4" />
             </div>
           </div>
@@ -135,10 +135,10 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         </div>
 
         {/* Card Settled */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+        <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
             <span>Card Volume</span>
-            <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-none bg-indigo-50 text-indigo-700 flex items-center justify-center">
               <CreditCard className="w-4 h-4" />
             </div>
           </div>
@@ -152,7 +152,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
       </div>
 
       {/* Order Ledger Table */}
-      <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+      <div className="flex-1 bg-white border border-slate-200 rounded-none shadow-xs overflow-hidden flex flex-col">
         <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
             Transaction Ledger ({orders.length})

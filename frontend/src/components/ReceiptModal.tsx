@@ -41,7 +41,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-slate-200 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 print:border-none print:shadow-none print:max-w-[80mm] print:mx-auto print:rounded-none"
+        className="bg-white border border-slate-200 w-full max-w-sm rounded-none shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 print:border-none print:shadow-none print:max-w-[80mm] print:mx-auto print:rounded-none"
       >
         {/* Success header - Hidden in Print */}
         <div className="bg-emerald-600 px-6 py-4 text-white flex items-center justify-between print:hidden">
@@ -55,7 +55,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
           <button
             type="button"
             onClick={onNewSale}
-            className="p-1 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-700/60 transition"
+            className="p-1 rounded-none text-emerald-200 hover:text-white hover:bg-emerald-700/60 transition"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -64,7 +64,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
 
         {/* Receipt Paper View */}
         <div className="p-5 flex justify-center bg-slate-100/70 print:p-0 print:bg-transparent">
-          <div className="receipt-paper w-full p-4 rounded-xl text-xs shadow-xs space-y-3 bg-white print:p-0 print:shadow-none print:border-none print:rounded-none">
+          <div className="receipt-paper w-full p-4 rounded-none text-xs shadow-xs space-y-3 bg-white print:p-0 print:shadow-none print:border-none print:rounded-none">
             {/* Store title */}
             <div className="text-center pb-2 border-b border-dashed border-slate-300 print:border-slate-800">
               <h2 className="font-extrabold text-sm tracking-widest uppercase text-slate-900">POSIX RETAIL</h2>
@@ -136,7 +136,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
           <button
             type="button"
             onClick={handlePrint}
-            className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition shadow-2xs active:scale-95"
+            className="flex-1 py-2 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold rounded-none flex items-center justify-center gap-1.5 transition shadow-2xs active:scale-95"
           >
             <Printer className="w-3.5 h-3.5" />
             Print Receipt
@@ -144,7 +144,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
           <button
             type="button"
             onClick={onNewSale}
-            className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition shadow-md active:scale-95"
+            className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-none flex items-center justify-center gap-1.5 transition shadow-md active:scale-95"
             autoFocus
           >
             <span>Next Customer</span>

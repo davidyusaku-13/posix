@@ -73,10 +73,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-screen bg-slate-100 p-4 select-none font-sans">
-      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden p-6">
+      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-none shadow-xl overflow-hidden p-6">
         {/* Branding header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mb-3 shadow-2xs">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-emerald-50 text-emerald-600 mb-3 shadow-2xs">
             <Terminal className="w-6 h-6 stroke-[2.5]" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-wider">POSIX TERMINAL</h1>
@@ -84,14 +84,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         </div>
 
         {/* Mode Switcher */}
-        <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+        <div className="flex bg-slate-100 p-1 rounded-none mb-6">
           <button
             type="button"
             onClick={() => {
               setUsePasswordMode(false)
               setErrorMsg(null)
             }}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+            className={`flex-1 py-1.5 text-xs font-bold rounded-none transition ${
               !usePasswordMode ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -103,7 +103,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               setUsePasswordMode(true)
               setErrorMsg(null)
             }}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+            className={`flex-1 py-1.5 text-xs font-bold rounded-none transition ${
               usePasswordMode ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -112,7 +112,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         </div>
 
         {errorMsg && (
-          <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-2.5 rounded-xl text-xs flex items-center gap-2">
+          <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-2.5 rounded-none text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span className="font-medium">{errorMsg}</span>
           </div>
@@ -142,7 +142,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   key={digit}
                   type="button"
                   onClick={() => handleNumpad(digit)}
-                  className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl shadow-2xs active:scale-95 transition"
+                  className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl shadow-2xs active:scale-95 transition"
                 >
                   {digit}
                 </button>
@@ -150,21 +150,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               <button
                 type="button"
                 onClick={handleClear}
-                className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold text-xs active:scale-95 transition uppercase"
+                className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold text-xs active:scale-95 transition uppercase"
               >
                 Clear
               </button>
               <button
                 type="button"
                 onClick={() => handleNumpad('0')}
-                className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl active:scale-95 transition shadow-2xs"
+                className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl active:scale-95 transition shadow-2xs"
               >
                 0
               </button>
               <button
                 type="button"
                 onClick={handleBackspace}
-                className="h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold flex items-center justify-center active:scale-95 transition"
+                className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold flex items-center justify-center active:scale-95 transition"
               >
                 <Delete className="w-5 h-5" />
               </button>
@@ -179,21 +179,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 <button
                   type="button"
                   onClick={() => quickLogin('0000')}
-                  className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-md transition"
+                  className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-none transition"
                 >
                   Cashier (0000)
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin('5678')}
-                  className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-md transition"
+                  className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-none transition"
                 >
                   Manager (5678)
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin('1234')}
-                  className="px-2 py-1 bg-slate-100 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-md transition"
+                  className="px-2 py-1 bg-slate-100 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-none transition"
                 >
                   Admin (1234)
                 </button>
@@ -212,7 +212,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="admin123"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-none text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
             </div>
@@ -235,7 +235,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-700/20"
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-none transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-700/20"
             >
               <span>{isLoading ? 'Verifying...' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4" />
