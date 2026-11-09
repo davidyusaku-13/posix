@@ -69,6 +69,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = locale
+    document.title = locale === 'id' ? 'POSIX — Sistem Kasir' : 'POSIX — Point of Sale'
   }, [locale])
 
   const dict = dictionaries[locale] || dictionaries.en
