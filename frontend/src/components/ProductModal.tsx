@@ -112,7 +112,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         {/* Header */}
         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <PackagePlus className="w-5 h-5 text-emerald-600" />
+            <PackagePlus className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-bold text-slate-900">
               {isEditing ? `Edit Product: ${product.name}` : 'Add New Product'}
             </h3>
@@ -284,7 +284,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-none shadow-sm transition flex items-center gap-1.5"
+              className="px-5 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground font-bold text-sm rounded-none shadow-sm transition flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>{isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Product'}</span>

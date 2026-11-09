@@ -72,19 +72,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-screen bg-slate-100 p-4 select-none font-sans">
-      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-none shadow-xl overflow-hidden p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen w-screen bg-background p-4 select-none font-sans">
+      <div className="w-full max-w-sm bg-card border border-border rounded-none shadow-xl overflow-hidden p-6">
         {/* Branding header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-emerald-50 text-emerald-600 mb-3 shadow-2xs">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-[#f5efe6] text-primary border border-[#e2d7c8] mb-3 shadow-2xs">
             <Terminal className="w-6 h-6 stroke-[2.5]" />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-wider">POSIX TERMINAL</h1>
-          <p className="text-xs text-slate-500 mt-1">Enter your staff PIN or sign in with credentials</p>
+          <h1 className="text-2xl font-black text-foreground tracking-wider">POSIX TERMINAL</h1>
+          <p className="text-xs text-muted-foreground mt-1">Enter your staff PIN or sign in with credentials</p>
         </div>
 
         {/* Mode Switcher */}
-        <div className="flex bg-slate-100 p-1 rounded-none mb-6">
+        <div className="flex bg-secondary p-1 rounded-none mb-6 border border-border">
           <button
             type="button"
             onClick={() => {
@@ -92,7 +92,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               setErrorMsg(null)
             }}
             className={`flex-1 py-1.5 text-xs font-bold rounded-none transition ${
-              !usePasswordMode ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+              !usePasswordMode ? 'bg-card text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Numeric PIN
@@ -104,7 +104,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               setErrorMsg(null)
             }}
             className={`flex-1 py-1.5 text-xs font-bold rounded-none transition ${
-              usePasswordMode ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+              usePasswordMode ? 'bg-card text-foreground shadow-2xs' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Admin Password
@@ -126,10 +126,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               {[0, 1, 2, 3].map((idx) => (
                 <div
                   key={idx}
-                  className={`w-3.5 h-3.5 rounded-full transition-all duration-150 ${
+                  className={`w-3.5 h-3.5 rounded-none transition-all duration-150 ${
                     idx < pin.length
-                      ? 'bg-emerald-600 scale-110 shadow-xs'
-                      : 'bg-slate-200 border border-slate-300'
+                      ? 'bg-primary scale-110 shadow-xs'
+                      : 'bg-muted border border-border'
                   }`}
                 />
               ))}
@@ -142,7 +142,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   key={digit}
                   type="button"
                   onClick={() => handleNumpad(digit)}
-                  className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl shadow-2xs active:scale-95 transition"
+                  className="h-14 rounded-none bg-secondary hover:bg-muted border border-border text-foreground font-extrabold text-xl shadow-2xs active:scale-95 transition"
                 >
                   {digit}
                 </button>
@@ -150,50 +150,50 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               <button
                 type="button"
                 onClick={handleClear}
-                className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold text-xs active:scale-95 transition uppercase"
+                className="h-14 rounded-none bg-secondary hover:bg-muted border border-border text-muted-foreground font-bold text-xs active:scale-95 transition uppercase"
               >
                 Clear
               </button>
               <button
                 type="button"
                 onClick={() => handleNumpad('0')}
-                className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 font-extrabold text-xl active:scale-95 transition shadow-2xs"
+                className="h-14 rounded-none bg-secondary hover:bg-muted border border-border text-foreground font-extrabold text-xl active:scale-95 transition shadow-2xs"
               >
                 0
               </button>
               <button
                 type="button"
                 onClick={handleBackspace}
-                className="h-14 rounded-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 font-bold flex items-center justify-center active:scale-95 transition"
+                className="h-14 rounded-none bg-secondary hover:bg-muted border border-border text-muted-foreground font-bold flex items-center justify-center active:scale-95 transition"
               >
                 <Delete className="w-5 h-5" />
               </button>
             </div>
 
             {/* Quick Demo Staff Logins */}
-            <div className="pt-3 border-t border-slate-100">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5 text-center">
+            <div className="pt-3 border-t border-border">
+              <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1.5 text-center">
                 Quick Shift Demo Logins
               </span>
               <div className="flex gap-1.5 justify-center">
                 <button
                   type="button"
                   onClick={() => quickLogin('0000')}
-                  className="px-2 py-1 bg-slate-100 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-none transition"
+                  className="px-2 py-1 bg-secondary hover:bg-[#f5efe6] text-foreground border border-border text-[10px] font-bold rounded-none transition"
                 >
                   Cashier (0000)
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin('5678')}
-                  className="px-2 py-1 bg-slate-100 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-none transition"
+                  className="px-2 py-1 bg-secondary hover:bg-[#fdf3e7] text-foreground border border-border text-[10px] font-bold rounded-none transition"
                 >
                   Manager (5678)
                 </button>
                 <button
                   type="button"
                   onClick={() => quickLogin('1234')}
-                  className="px-2 py-1 bg-slate-100 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-800 text-slate-700 border border-slate-200 text-[10px] font-bold rounded-none transition"
+                  className="px-2 py-1 bg-secondary hover:bg-[#f5efe6] text-foreground border border-border text-[10px] font-bold rounded-none transition"
                 >
                   Admin (1234)
                 </button>
@@ -235,7 +235,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-none transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-700/20"
+              className="w-full py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-none transition flex items-center justify-center gap-1.5 shadow-md"
             >
               <span>{isLoading ? 'Verifying...' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -244,8 +244,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         )}
       </div>
 
-      <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+        <ShieldCheck className="w-4 h-4 text-[#8f4d08]" />
         <span>Local RBAC & Bcrypt Protection</span>
       </div>
     </div>

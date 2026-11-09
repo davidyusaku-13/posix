@@ -49,8 +49,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     switch (variant) {
       case 'primary':
         return {
-          iconContainer: 'bg-emerald-50 text-emerald-600 border-emerald-200/80',
-          confirmBtn: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25 text-white',
+          iconContainer: 'bg-[#f5efe6] text-primary border-[#e2d7c8]',
+          confirmBtn: 'bg-primary hover:bg-primary/90 text-primary-foreground',
           Icon: CheckCircle2,
         }
       case 'warning':

@@ -148,10 +148,10 @@ export const UserManager: React.FC = () => {
       case 'admin':
         return 'bg-purple-100 text-purple-800 border-purple-200'
       case 'manager':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
+        return 'bg-[#fdf3e7] text-[#8f4d08] border-[#f4d3a8]'
       case 'cashier':
       default:
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200'
+        return 'bg-[#f5efe6] text-primary border-[#e2d7c8]'
     }
   }
 
@@ -161,7 +161,7 @@ export const UserManager: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-            <Users className="w-6 h-6 text-emerald-600" />
+            <Users className="w-6 h-6 text-primary" />
             Staff & User Management (RBAC)
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -172,14 +172,14 @@ export const UserManager: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={loadUsers}
-            className="p-2 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-slate-600 hover:text-slate-900 transition shadow-2xs"
+            className="p-2 bg-white hover:bg-slate-100 border border-slate-300 rounded-none text-slate-600 hover:text-slate-900 transition shadow-2xs"
             title="Refresh staff list"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
           <button
             onClick={openAddModal}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-lg shadow-sm flex items-center gap-2 transition"
+            className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-none shadow-sm flex items-center gap-2 transition"
           >
             <UserPlus className="w-4 h-4 stroke-[2.5]" />
             <span>Add Staff Member</span>
@@ -371,7 +371,7 @@ export const UserManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition"
+                  className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-none transition"
                 >
                   {isSubmitting ? 'Saving...' : 'Create Account'}
                 </button>
@@ -485,7 +485,7 @@ export const UserManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition"
+                  className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-none transition"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>

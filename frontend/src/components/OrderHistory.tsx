@@ -67,7 +67,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-            <Receipt className="w-6 h-6 text-emerald-600" />
+            <Receipt className="w-6 h-6 text-primary" />
             Transaction & Order History
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -90,7 +90,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
         <div className="bg-white border border-slate-200 rounded-none p-4 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
             <span>Total Gross Revenue</span>
-            <div className="w-7 h-7 rounded-none bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-none bg-[#f5efe6] text-primary flex items-center justify-center">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>

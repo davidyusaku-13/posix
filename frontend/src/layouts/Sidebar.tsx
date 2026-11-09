@@ -30,31 +30,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
   const navItemClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 px-3.5 py-2.5 rounded-none font-bold text-xs transition duration-150 relative ${
       isActive
-        ? 'bg-emerald-600 text-white shadow-sm'
-        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+        ? 'bg-primary text-primary-foreground shadow-sm'
+        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
     }`
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between h-screen select-none shrink-0 shadow-xs">
+    <aside className="w-64 bg-sidebar border-r border-border flex flex-col justify-between h-screen select-none shrink-0 shadow-xs">
       {/* Brand & Terminal Header */}
       <div>
-        <div className="p-5 border-b border-slate-100">
-          <div className="flex items-center gap-2.5 text-emerald-600">
-            <div className="w-9 h-9 rounded-none bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-2xs">
+        <div className="p-5 border-b border-border/60">
+          <div className="flex items-center gap-2.5 text-primary">
+            <div className="w-9 h-9 rounded-none bg-[#f5efe6] border border-[#e2d7c8] text-primary flex items-center justify-center shadow-2xs">
               <Terminal className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <span className="font-black text-xl tracking-wider text-slate-900 block leading-tight">POSIX</span>
-              <span className="text-[10px] font-mono font-medium text-slate-400">Point of Sale System</span>
+              <span className="font-black text-xl tracking-wider text-foreground block leading-tight">POSIX</span>
+              <span className="text-[10px] font-mono font-medium text-muted-foreground">Point of Sale System</span>
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-emerald-700 bg-emerald-50/70 border border-emerald-200/60 px-2.5 py-1 rounded-none">
+          <div className="mt-3 flex items-center justify-between text-[11px] font-mono text-[#8f4d08] bg-[#fdf3e7] border border-[#f4d3a8] px-2.5 py-1 rounded-none">
             <span className="flex items-center gap-1.5 font-semibold">
-              <span className="w-2 h-2 rounded-none bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-none bg-[#c26d17] animate-pulse" />
               Terminal #1 Active
             </span>
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#8f4d08]" />
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
             <ShoppingCart className="w-4 h-4" />
             <span className="flex-1">Cashier Register</span>
             {totalItemsCount > 0 && (
-              <span className="px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+              <span className="px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#f5efe6] text-primary border border-[#e2d7c8]">
                 {totalItemsCount}
               </span>
             )}
@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
               <Boxes className="w-4 h-4" />
               <span className="flex-1">Inventory Control</span>
               {lowStockCount > 0 && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-none text-[10px] bg-amber-500 text-white font-mono font-bold">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-none text-[10px] bg-[#c26d17] text-white font-mono font-bold">
                   <AlertTriangle className="w-2.5 h-2.5" />
                   {lowStockCount}
                 </span>
@@ -104,14 +104,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
       </div>
 
       {/* Operator Footer Profile & Lock Button */}
-      <div className="p-4 border-t border-slate-200 bg-slate-50/60">
-        <div className="flex items-center justify-between gap-2 bg-white border border-slate-200 p-2.5 rounded-none shadow-2xs">
+      <div className="p-4 border-t border-border bg-muted/40">
+        <div className="flex items-center justify-between gap-2 bg-card border border-border p-2.5 rounded-none shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-none bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-8 h-8 rounded-none bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shrink-0">
               {currentUser.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-slate-900 truncate leading-tight">
+              <div className="text-xs font-bold text-foreground truncate leading-tight">
                 {currentUser.name}
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
           <button
             onClick={logout}
             title="Lock terminal / Switch cashier"
-            className="p-1.5 rounded-none text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition shrink-0"
+            className="p-1.5 rounded-none text-muted-foreground hover:text-destructive hover:bg-destructive/10 border border-border transition shrink-0"
           >
             <LogOut className="w-4 h-4" />
           </button>

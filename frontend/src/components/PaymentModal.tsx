@@ -88,11 +88,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 space-y-5">
           {/* Amount Due Banner */}
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-none p-4 text-center">
-            <span className="text-xs text-emerald-800 uppercase tracking-wider font-bold">
+          <div className="bg-[#fdf3e7] border border-[#f4d3a8] rounded-none p-4 text-center">
+            <span className="text-xs text-[#8f4d08] uppercase tracking-wider font-bold">
               Total Amount Due
             </span>
-            <div className="text-3xl font-extrabold text-emerald-700 font-mono font-mono-nums mt-0.5">
+            <div className="text-3xl font-extrabold text-primary font-mono font-mono-nums mt-0.5">
               {formatCents(totalCents)}
             </div>
           </div>
@@ -107,7 +107,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               }}
               className={`flex items-center justify-center gap-2 py-2.5 rounded-none border text-sm font-bold transition shadow-2xs ${
                 method === 'cash'
-                  ? 'bg-emerald-50 border-2 border-emerald-600 text-emerald-800'
+                  ? 'bg-[#f5efe6] border-2 border-primary text-primary'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -123,7 +123,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               }}
               className={`flex items-center justify-center gap-2 py-2.5 rounded-none border text-sm font-bold transition shadow-2xs ${
                 method === 'card'
-                  ? 'bg-emerald-50 border-2 border-emerald-600 text-emerald-800'
+                  ? 'bg-[#f5efe6] border-2 border-primary text-primary'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -149,7 +149,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     min="0"
                     value={cashTenderedStr}
                     onChange={(e) => setCashTenderedStr(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-300 focus:border-emerald-600 rounded-none text-xl font-mono font-bold text-slate-900 focus:outline-none shadow-xs"
+                    className="w-full pl-8 pr-3 py-2 bg-white border-2 border-slate-300 focus:border-primary rounded-none text-xl font-mono font-bold text-slate-900 focus:outline-none shadow-xs"
                     autoFocus
                   />
                 </div>
@@ -184,7 +184,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <span className="text-sm font-semibold text-slate-600">Change Due:</span>
                 <span
                   className={`font-mono text-xl font-extrabold ${
-                    changeCents < 0 ? 'text-rose-600' : 'text-emerald-700'
+                    changeCents < 0 ? 'text-rose-600' : 'text-primary'
                   }`}
                 >
                   {changeCents < 0
@@ -195,11 +195,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
           ) : (
             <div className="bg-slate-50 border border-slate-200 rounded-none p-6 text-center space-y-2">
-              <CreditCard className="w-10 h-10 text-emerald-600 mx-auto" />
+              <CreditCard className="w-10 h-10 text-primary mx-auto" />
               <p className="text-base font-bold text-slate-900">Terminal Ready</p>
               <p className="text-xs text-slate-500">
                 Customer will tap/insert card for exact total of{' '}
-                <span className="font-mono text-emerald-700 font-bold text-sm">
+                <span className="font-mono text-primary font-bold text-sm">
                   {formatCents(totalCents)}
                 </span>
               </p>
@@ -227,7 +227,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || (method === 'cash' && !isCashSufficient)}
-            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-sm rounded-none shadow-md transition flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-primary hover:bg-primary/90 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-primary-foreground font-bold text-sm rounded-none shadow-md transition flex items-center gap-1.5"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{isSubmitting ? 'Processing...' : 'Complete Sale'}</span>

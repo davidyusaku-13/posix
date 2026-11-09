@@ -44,18 +44,18 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
         className="bg-white border border-slate-200 w-full max-w-sm rounded-none shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 print:border-none print:shadow-none print:max-w-[80mm] print:mx-auto print:rounded-none"
       >
         {/* Success header - Hidden in Print */}
-        <div className="bg-emerald-600 px-6 py-4 text-white flex items-center justify-between print:hidden">
+        <div className="bg-primary px-6 py-4 text-primary-foreground flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2.5">
             <CheckCircle className="w-6 h-6 stroke-[2.5]" />
             <div>
               <h3 className="font-bold text-base leading-tight">Order Completed</h3>
-              <p className="text-xs text-emerald-100 font-mono font-medium">{order.receiptNumber}</p>
+              <p className="text-xs text-primary-foreground/80 font-mono font-medium">{order.receiptNumber}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onNewSale}
-            className="p-1 rounded-none text-emerald-200 hover:text-white hover:bg-emerald-700/60 transition"
+            className="p-1 rounded-none text-primary-foreground/80 hover:text-primary-foreground hover:bg-black/20 transition"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -119,7 +119,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
               </div>
               <div className="flex justify-between font-bold text-slate-900 text-[11px] pt-1">
                 <span>Change Due</span>
-                <span className="font-mono text-emerald-700 print:text-slate-900">{formatCents(payment.changeCents)}</span>
+                <span className="font-mono text-primary print:text-slate-900">{formatCents(payment.changeCents)}</span>
               </div>
             </div>
 
@@ -144,7 +144,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
           <button
             type="button"
             onClick={onNewSale}
-            className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-none flex items-center justify-center gap-1.5 transition shadow-md active:scale-95"
+            className="flex-1 py-2 px-3 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-none flex items-center justify-center gap-1.5 transition shadow-md active:scale-95"
             autoFocus
           >
             <span>Next Customer</span>
