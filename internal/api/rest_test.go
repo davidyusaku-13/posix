@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/davidyusaku-13/posix/internal/api"
@@ -89,6 +90,113 @@ func TestREST_ProductEndpoints(t *testing.T) {
 		}
 		if errResp.Error.Code != "PRODUCT_NOT_FOUND" {
 			t.Errorf("expected code PRODUCT_NOT_FOUND, got %s", errResp.Error.Code)
+		}
+	})
+
+	t.Run("POST /api/v1/products creates product and sets Location header", func(t *testing.T) {
+		payload := domain.CreateProductInput{
+			SKU:           "REST-001",
+			Barcode:       "6660001",
+			Name:          "Hazelnut Syrup 750ml",
+			PriceCents:    1100,
+			TaxRateBps:    825,
+			StockQuantity: 20,
+			MinStockAlert: 5,
+		}
+		body, _ := json.Marshal(payload)
+
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/products", bytes.NewReader(body))
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusCreated {
+			t.Fatalf("expected 201 Created, got %d. Body: %s", rr.Code, rr.Body.String())
+		}
+		location := rr.Header().Get("Location")
+		if location == "" {
+			t.Errorf("expected Location header in 201 response")
+		}
+
+		var created domain.Product
+		if err := json.Unmarshal(rr.Body.Bytes(), &created); err != nil {
+			t.Fatalf("failed to parse created product: %v", err)
+		}
+		if created.ID == 0 {
+			t.Errorf("expected product ID to be set")
+		}
+	})
+
+	t.Run("PUT /api/v1/products/{id} updates existing product", func(t *testing.T) {
+		// First lookup the product created in the previous test
+		reqFind, _ := http.NewRequest(http.MethodGet, "/api/v1/products?code=REST-001", nil)
+		rrFind := httptest.NewRecorder()
+		router.ServeHTTP(rrFind, reqFind)
+
+		var p domain.Product
+		_ = json.Unmarshal(rrFind.Body.Bytes(), &p)
+
+		updatePayload := domain.UpdateProductInput{
+			Name:          "Hazelnut Syrup 750ml (Vanilla Infused)",
+			PriceCents:    1250,
+			TaxRateBps:    825,
+			MinStockAlert: 8,
+		}
+		body, _ := json.Marshal(updatePayload)
+
+		reqUpdate, _ := http.NewRequest(http.MethodPut, "/api/v1/products/"+strconv.FormatInt(p.ID, 10), bytes.NewReader(body))
+		rrUpdate := httptest.NewRecorder()
+		router.ServeHTTP(rrUpdate, reqUpdate)
+
+		if rrUpdate.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d. Body: %s", rrUpdate.Code, rrUpdate.Body.String())
+		}
+		var updated domain.Product
+		_ = json.Unmarshal(rrUpdate.Body.Bytes(), &updated)
+		if updated.PriceCents != 1250 {
+			t.Errorf("expected updated price 1250, got %d", updated.PriceCents)
+		}
+	})
+
+	t.Run("POST /api/v1/products/{id}/stock adjusts inventory stock", func(t *testing.T) {
+		reqFind, _ := http.NewRequest(http.MethodGet, "/api/v1/products?code=REST-001", nil)
+		rrFind := httptest.NewRecorder()
+		router.ServeHTTP(rrFind, reqFind)
+		var p domain.Product
+		_ = json.Unmarshal(rrFind.Body.Bytes(), &p)
+
+		stockPayload := domain.AdjustStockInput{Delta: 15} // restock +15
+		body, _ := json.Marshal(stockPayload)
+
+		reqStock, _ := http.NewRequest(http.MethodPost, "/api/v1/products/"+strconv.FormatInt(p.ID, 10)+"/stock", bytes.NewReader(body))
+		rrStock := httptest.NewRecorder()
+		router.ServeHTTP(rrStock, reqStock)
+
+		if rrStock.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d. Body: %s", rrStock.Code, rrStock.Body.String())
+		}
+		var adjusted domain.Product
+		_ = json.Unmarshal(rrStock.Body.Bytes(), &adjusted)
+		if adjusted.StockQuantity != p.StockQuantity+15 {
+			t.Errorf("expected %d, got %d", p.StockQuantity+15, adjusted.StockQuantity)
+		}
+	})
+
+	t.Run("GET /api/v1/products?low_stock=true filters low stock items", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/products?low_stock=true", nil)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d", rr.Code)
+		}
+		var products []domain.Product
+		if err := json.Unmarshal(rr.Body.Bytes(), &products); err != nil {
+			t.Fatalf("failed to parse json: %v", err)
+		}
+		for _, prod := range products {
+			if prod.StockQuantity > prod.MinStockAlert {
+				t.Errorf("product %s stock (%d) exceeds min alert (%d)", prod.Name, prod.StockQuantity, prod.MinStockAlert)
+			}
 		}
 	})
 }

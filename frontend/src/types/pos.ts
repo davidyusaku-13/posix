@@ -10,6 +10,25 @@ export interface Product {
   minStockAlert: number
 }
 
+export interface CreateProductInput {
+  sku: string
+  barcode: string
+  name: string
+  description?: string
+  priceCents: number
+  taxRateBps?: number
+  stockQuantity: number
+  minStockAlert?: number
+}
+
+export interface UpdateProductInput {
+  name: string
+  description?: string
+  priceCents: number
+  taxRateBps?: number
+  minStockAlert?: number
+}
+
 export interface CartItem {
   product: Product
   quantity: number

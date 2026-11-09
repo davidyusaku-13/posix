@@ -73,6 +73,112 @@ func TestProductRepository(t *testing.T) {
 			t.Fatalf("expected ErrProductNotFound, got %v", err)
 		}
 	})
+
+	t.Run("Create product persists and returns generated ID", func(t *testing.T) {
+		newProd := &domain.Product{
+			SKU:           "NEW-001",
+			Barcode:       "9990001",
+			Name:          "Specialty Matchstick Tea",
+			Description:   "Organic Japanese ceremonial grade",
+			PriceCents:    1850,
+			TaxRateBps:    825,
+			StockQuantity: 15,
+			MinStockAlert: 5,
+		}
+		created, err := repo.Create(ctx, newProd)
+		if err != nil {
+			t.Fatalf("failed to create product: %v", err)
+		}
+		if created.ID == 0 {
+			t.Errorf("expected non-zero ID")
+		}
+
+		fetched, err := repo.FindByID(ctx, created.ID)
+		if err != nil {
+			t.Fatalf("failed to fetch created product: %v", err)
+		}
+		if fetched.Name != newProd.Name {
+			t.Errorf("expected %s, got %s", newProd.Name, fetched.Name)
+		}
+	})
+
+	t.Run("Update product modifies metadata", func(t *testing.T) {
+		prod, err := repo.FindByCode(ctx, "NEW-001")
+		if err != nil {
+			t.Fatalf("failed to find product: %v", err)
+		}
+		prod.Name = "Updated Matcha Tea"
+		prod.PriceCents = 1950
+
+		updated, err := repo.Update(ctx, prod)
+		if err != nil {
+			t.Fatalf("failed to update product: %v", err)
+		}
+		if updated.Name != "Updated Matcha Tea" {
+			t.Errorf("expected updated name, got %s", updated.Name)
+		}
+		if updated.PriceCents != 1950 {
+			t.Errorf("expected updated price 1950, got %d", updated.PriceCents)
+		}
+	})
+
+	t.Run("AdjustStock increments and decrements correctly", func(t *testing.T) {
+		prod, err := repo.FindByCode(ctx, "NEW-001")
+		if err != nil {
+			t.Fatalf("failed to find product: %v", err)
+		}
+		initialStock := prod.StockQuantity
+
+		// Restock +10
+		adjusted, err := repo.AdjustStock(ctx, prod.ID, 10)
+		if err != nil {
+			t.Fatalf("failed to restock: %v", err)
+		}
+		if adjusted.StockQuantity != initialStock+10 {
+			t.Errorf("expected %d, got %d", initialStock+10, adjusted.StockQuantity)
+		}
+
+		// Reduce -5
+		adjusted2, err := repo.AdjustStock(ctx, prod.ID, -5)
+		if err != nil {
+			t.Fatalf("failed to reduce stock: %v", err)
+		}
+		if adjusted2.StockQuantity != initialStock+5 {
+			t.Errorf("expected %d, got %d", initialStock+5, adjusted2.StockQuantity)
+		}
+	})
+
+	t.Run("ListLowStock returns items below threshold", func(t *testing.T) {
+		// Create an item with low stock
+		lowProd := &domain.Product{
+			SKU:           "LOW-001",
+			Barcode:       "9990002",
+			Name:          "Almost Gone Item",
+			PriceCents:    500,
+			TaxRateBps:    825,
+			StockQuantity: 2,
+			MinStockAlert: 5,
+		}
+		_, err := repo.Create(ctx, lowProd)
+		if err != nil {
+			t.Fatalf("failed to create low product: %v", err)
+		}
+
+		lowItems, err := repo.ListLowStock(ctx)
+		if err != nil {
+			t.Fatalf("failed to list low stock: %v", err)
+		}
+		found := false
+		for _, item := range lowItems {
+			if item.SKU == "LOW-001" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("expected LOW-001 to be in low stock list")
+		}
+	})
 }
 
 func TestOrderRepository(t *testing.T) {

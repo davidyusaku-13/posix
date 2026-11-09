@@ -45,9 +45,13 @@ POSIX is a lightweight, reliable, Linux-native Point of Sale system built for lo
   4. Record the `Payment` transaction.
   5. Generate a unique sequential Receipt Number (e.g., `RCP-YYYYMMDD-XXXX`).
 
-#### 2.5 Inventory Control (FR-5)
+#### 2.5 Inventory Control & Management (FR-5)
 - **FR-5.1**: Stock is atomically reduced upon successful checkout.
 - **FR-5.2**: Transactions will be rejected if requested quantity exceeds available stock (configurable allow-backorder flag if needed; defaults to strict stock checks).
+- **FR-5.3 (Product Creation)**: Managers can register new catalog items with unique SKU, unique barcode, name, description, unit price (cents), tax rate (basis points), initial stock, and low-stock threshold.
+- **FR-5.4 (Product Editing)**: Managers can modify existing product details (name, description, price, tax rate, minimum stock alert).
+- **FR-5.5 (Stock Adjustment & Restocking)**: Managers can restock items (+quantity) or perform manual stock reconciliations/recounts.
+- **FR-5.6 (Low Stock Alerting)**: Terminal highlights low-stock items and allows filtering by products at or below their alert threshold.
 
 #### 2.6 Receipt & Audit History (FR-6)
 - **FR-6.1**: Every completed order generates a formatted receipt with timestamp, cashier, line items, taxes, payment method, amount tendered, and change.

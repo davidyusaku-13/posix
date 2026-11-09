@@ -84,3 +84,29 @@ type CheckoutResponse struct {
 	Items   []OrderItem `json:"items"`
 	Payment Payment     `json:"payment"`
 }
+
+// CreateProductInput represents the payload to register a new product.
+type CreateProductInput struct {
+	SKU           string `json:"sku"`
+	Barcode       string `json:"barcode"`
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	PriceCents    int64  `json:"priceCents"`
+	TaxRateBps    int    `json:"taxRateBps"`
+	StockQuantity int    `json:"stockQuantity"`
+	MinStockAlert int    `json:"minStockAlert"`
+}
+
+// UpdateProductInput represents metadata updates for an existing product.
+type UpdateProductInput struct {
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	PriceCents    int64  `json:"priceCents"`
+	TaxRateBps    int    `json:"taxRateBps"`
+	MinStockAlert int    `json:"minStockAlert"`
+}
+
+// AdjustStockInput represents stock increment or decrement delta.
+type AdjustStockInput struct {
+	Delta int `json:"delta"`
+}

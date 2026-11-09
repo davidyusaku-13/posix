@@ -4,11 +4,13 @@ import { ProductCatalog } from './components/ProductCatalog'
 import { Cart } from './components/Cart'
 import { PaymentModal } from './components/PaymentModal'
 import { ReceiptModal } from './components/ReceiptModal'
-import type { Product, CartItem, CheckoutResponse } from './types/pos'
+import { InventoryManager } from './components/InventoryManager'
+import type { Product, CartItem, CheckoutResponse, CreateProductInput, UpdateProductInput } from './types/pos'
 import { posApi } from './services/api'
 import { computeTaxCents } from './utils/format'
 
 export function App() {
+  const [activeTab, setActiveTab] = useState<'cashier' | 'inventory'>('cashier')
   const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -30,6 +32,9 @@ export function App() {
   useEffect(() => {
     loadProducts()
   }, [loadProducts])
+
+  // Low stock count badge
+  const lowStockCount = products.filter((p) => p.stockQuantity <= p.minStockAlert).length
 
   // Cart operations
   const handleAddToCart = (product: Product) => {
@@ -83,6 +88,22 @@ export function App() {
     }
   }
 
+  // Inventory operations
+  const handleCreateProduct = async (input: CreateProductInput) => {
+    await posApi.createProduct(input)
+    await loadProducts()
+  }
+
+  const handleUpdateProduct = async (id: number, input: UpdateProductInput) => {
+    await posApi.updateProduct(id, input)
+    await loadProducts()
+  }
+
+  const handleAdjustStock = async (id: number, delta: number) => {
+    await posApi.adjustStock(id, delta)
+    await loadProducts()
+  }
+
   // Cart grand total
   const subtotalCents = cart.reduce(
     (sum, item) => sum + item.product.priceCents * item.quantity,
@@ -119,34 +140,52 @@ export function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-100 text-slate-800 overflow-hidden font-sans">
-      <Header onReset={handleClearCart} onRefreshCatalog={loadProducts} />
+      <Header
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        lowStockCount={lowStockCount}
+        onReset={handleClearCart}
+        onRefreshCatalog={loadProducts}
+      />
 
-      <main className="flex-1 grid grid-cols-12 min-h-0">
-        {/* Left 7 cols: Product Catalog & Barcode Scanner */}
-        <section className="col-span-7 h-full overflow-hidden">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full text-slate-400 font-mono">
-              Loading POS catalog...
-            </div>
-          ) : (
-            <ProductCatalog
-              products={products}
-              onAddToCart={handleAddToCart}
-              onBarcodeScan={handleBarcodeScan}
-            />
-          )}
-        </section>
+      <main className="flex-1 min-h-0 overflow-hidden">
+        {activeTab === 'cashier' ? (
+          <div className="grid grid-cols-12 h-full">
+            {/* Left 7 cols: Product Catalog & Barcode Scanner */}
+            <section className="col-span-7 h-full overflow-hidden">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full text-slate-400 font-mono">
+                  Loading POS catalog...
+                </div>
+              ) : (
+                <ProductCatalog
+                  products={products}
+                  onAddToCart={handleAddToCart}
+                  onBarcodeScan={handleBarcodeScan}
+                />
+              )}
+            </section>
 
-        {/* Right 5 cols: Active Cart & Total */}
-        <section className="col-span-5 h-full overflow-hidden">
-          <Cart
-            items={cart}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemoveItem={handleRemoveItem}
-            onClearCart={handleClearCart}
-            onCheckout={() => setIsPaymentOpen(true)}
+            {/* Right 5 cols: Active Cart & Total */}
+            <section className="col-span-5 h-full overflow-hidden">
+              <Cart
+                items={cart}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemoveItem={handleRemoveItem}
+                onClearCart={handleClearCart}
+                onCheckout={() => setIsPaymentOpen(true)}
+              />
+            </section>
+          </div>
+        ) : (
+          <InventoryManager
+            products={products}
+            onRefresh={loadProducts}
+            onCreateProduct={handleCreateProduct}
+            onUpdateProduct={handleUpdateProduct}
+            onAdjustStock={handleAdjustStock}
           />
-        </section>
+        )}
       </main>
 
       {/* Payment Dialog Modal */}

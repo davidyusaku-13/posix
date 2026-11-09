@@ -137,3 +137,86 @@ func (r *ProductRepository) DeductStockTx(ctx context.Context, tx *sql.Tx, produ
 	}
 	return nil
 }
+
+func (r *ProductRepository) ListLowStock(ctx context.Context) ([]domain.Product, error) {
+	stmt := fmt.Sprintf(`
+		SELECT %s FROM products
+		WHERE stock_quantity <= min_stock_alert
+		ORDER BY stock_quantity ASC, name ASC
+	`, productColumns)
+	rows, err := r.db.QueryContext(ctx, stmt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list low stock products: %w", err)
+	}
+	defer rows.Close()
+
+	products := make([]domain.Product, 0)
+	for rows.Next() {
+		p, err := scanProduct(rows)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan product: %w", err)
+		}
+		products = append(products, *p)
+	}
+	return products, nil
+}
+
+func (r *ProductRepository) Create(ctx context.Context, p *domain.Product) (*domain.Product, error) {
+	res, err := r.db.ExecContext(ctx, `
+		INSERT INTO products (sku, barcode, name, description, price_cents, tax_rate_bps, stock_quantity, min_stock_alert)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`, p.SKU, p.Barcode, p.Name, p.Description, p.PriceCents, p.TaxRateBps, p.StockQuantity, p.MinStockAlert)
+	if err != nil {
+		return nil, fmt.Errorf("failed to insert product: %w", err)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return r.FindByID(ctx, id)
+}
+
+func (r *ProductRepository) Update(ctx context.Context, p *domain.Product) (*domain.Product, error) {
+	res, err := r.db.ExecContext(ctx, `
+		UPDATE products
+		SET name = ?, description = ?, price_cents = ?, tax_rate_bps = ?, min_stock_alert = ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`, p.Name, p.Description, p.PriceCents, p.TaxRateBps, p.MinStockAlert, p.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update product: %w", err)
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rowsAffected == 0 {
+		return nil, domain.ErrProductNotFound
+	}
+	return r.FindByID(ctx, p.ID)
+}
+
+func (r *ProductRepository) AdjustStock(ctx context.Context, id int64, delta int) (*domain.Product, error) {
+	res, err := r.db.ExecContext(ctx, `
+		UPDATE products
+		SET stock_quantity = stock_quantity + ?, updated_at = CURRENT_TIMESTAMP
+		WHERE id = ? AND (stock_quantity + ?) >= 0
+	`, delta, id, delta)
+	if err != nil {
+		return nil, fmt.Errorf("failed to adjust stock: %w", err)
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if rowsAffected == 0 {
+		// Either product doesn't exist or delta would result in negative stock
+		var exists bool
+		_ = r.db.QueryRowContext(ctx, `SELECT 1 FROM products WHERE id = ?`, id).Scan(&exists)
+		if !exists {
+			return nil, domain.ErrProductNotFound
+		}
+		return nil, domain.ErrInsufficientInventory
+	}
+	return r.FindByID(ctx, id)
+}

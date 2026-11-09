@@ -1,4 +1,4 @@
-import type { CheckoutResponse, Product } from '../types/pos'
+import type { CheckoutResponse, CreateProductInput, Product, UpdateProductInput } from '../types/pos'
 
 export interface ApiError {
   error: {
@@ -8,9 +8,15 @@ export interface ApiError {
 }
 
 export const posApi = {
-  // Fetch all products or filter by query
-  async getProducts(query = ''): Promise<Product[]> {
-    const url = query ? `/api/v1/products?q=${encodeURIComponent(query)}` : '/api/v1/products'
+  // Fetch all products or filter by search query
+  async getProducts(query = '', lowStock = false): Promise<Product[]> {
+    let url = '/api/v1/products'
+    const params = new URLSearchParams()
+    if (query) params.append('q', query)
+    if (lowStock) params.append('low_stock', 'true')
+    const qs = params.toString()
+    if (qs) url += `?${qs}`
+
     const res = await fetch(url)
     if (!res.ok) {
       const err: ApiError = await res.json()
@@ -28,6 +34,48 @@ export const posApi = {
     if (!res.ok) {
       const err: ApiError = await res.json()
       throw new Error(err.error?.message || 'Product lookup failed')
+    }
+    return res.json()
+  },
+
+  // Create new product
+  async createProduct(input: CreateProductInput): Promise<Product> {
+    const res = await fetch('/api/v1/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to create product')
+    }
+    return res.json()
+  },
+
+  // Update existing product metadata
+  async updateProduct(id: number, input: UpdateProductInput): Promise<Product> {
+    const res = await fetch(`/api/v1/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to update product')
+    }
+    return res.json()
+  },
+
+  // Adjust product inventory stock (+/- delta)
+  async adjustStock(id: number, delta: number): Promise<Product> {
+    const res = await fetch(`/api/v1/products/${id}/stock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ delta }),
+    })
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to adjust stock')
     }
     return res.json()
   },

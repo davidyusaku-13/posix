@@ -10,10 +10,14 @@ import (
 // ProductRepository defines persistence abstractions for products (DIP).
 type ProductRepository interface {
 	List(ctx context.Context, query string) ([]domain.Product, error)
+	ListLowStock(ctx context.Context) ([]domain.Product, error)
 	FindByID(ctx context.Context, id int64) (*domain.Product, error)
 	FindByCode(ctx context.Context, code string) (*domain.Product, error)
 	FindByIDTx(ctx context.Context, tx *sql.Tx, id int64) (*domain.Product, error)
 	DeductStockTx(ctx context.Context, tx *sql.Tx, productID int64, qty int) error
+	Create(ctx context.Context, p *domain.Product) (*domain.Product, error)
+	Update(ctx context.Context, p *domain.Product) (*domain.Product, error)
+	AdjustStock(ctx context.Context, id int64, delta int) (*domain.Product, error)
 }
 
 // OrderRepository defines persistence abstractions for orders, items, and payments (DIP).

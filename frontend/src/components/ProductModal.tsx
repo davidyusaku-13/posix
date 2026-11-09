@@ -1,0 +1,276 @@
+import React, { useState } from 'react'
+import { X, Check, PackagePlus, AlertCircle } from 'lucide-react'
+import type { CreateProductInput, Product, UpdateProductInput } from '../types/pos'
+
+interface ProductModalProps {
+  product?: Product | null // If null/undefined, we are creating; if present, we are editing
+  onClose: () => void
+  onSaveCreate?: (input: CreateProductInput) => Promise<void>
+  onSaveUpdate?: (id: number, input: UpdateProductInput) => Promise<void>
+}
+
+export const ProductModal: React.FC<ProductModalProps> = ({
+  product,
+  onClose,
+  onSaveCreate,
+  onSaveUpdate,
+}) => {
+  const isEditing = !!product
+
+  const [name, setName] = useState(product?.name || '')
+  const [sku, setSku] = useState(product?.sku || '')
+  const [barcode, setBarcode] = useState(product?.barcode || '')
+  const [description, setDescription] = useState(product?.description || '')
+  const [priceStr, setPriceStr] = useState(product ? (product.priceCents / 100).toFixed(2) : '')
+  const [stockStr, setStockStr] = useState(product ? product.stockQuantity.toString() : '10')
+  const [minAlertStr, setMinAlertStr] = useState(product ? product.minStockAlert.toString() : '5')
+  const [taxRatePctStr, setTaxRatePctStr] = useState(product ? (product.taxRateBps / 100).toFixed(2) : '8.25')
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMsg(null)
+
+    const trimmedName = name.trim()
+    const trimmedSku = sku.trim()
+    const trimmedBarcode = barcode.trim()
+    const priceCents = Math.round((parseFloat(priceStr) || 0) * 100)
+    const stockQty = parseInt(stockStr, 10) || 0
+    const minAlert = parseInt(minAlertStr, 10) || 5
+    const taxRateBps = Math.round((parseFloat(taxRatePctStr) || 0) * 100)
+
+    if (!trimmedName) {
+      setErrorMsg('Product name is required')
+      return
+    }
+
+    if (!isEditing && (!trimmedSku || !trimmedBarcode)) {
+      setErrorMsg('SKU and Barcode are required')
+      return
+    }
+
+    if (priceCents < 0) {
+      setErrorMsg('Price cannot be negative')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      if (isEditing && onSaveUpdate) {
+        await onSaveUpdate(product.id, {
+          name: trimmedName,
+          description: description.trim(),
+          priceCents,
+          taxRateBps,
+          minStockAlert: minAlert,
+        })
+      } else if (onSaveCreate) {
+        await onSaveCreate({
+          name: trimmedName,
+          sku: trimmedSku,
+          barcode: trimmedBarcode,
+          description: description.trim(),
+          priceCents,
+          taxRateBps,
+          stockQuantity: stockQty,
+          minStockAlert: minAlert,
+        })
+      }
+      onClose()
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to save product')
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+        {/* Header */}
+        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <PackagePlus className="w-5 h-5 text-emerald-600" />
+            <h3 className="text-lg font-bold text-slate-900">
+              {isEditing ? `Edit Product: ${product.name}` : 'Add New Product'}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Product Name *
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Colombian Roast Beans 500g"
+              className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs font-medium"
+              autoFocus
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                SKU *
+              </label>
+              <input
+                type="text"
+                required
+                disabled={isEditing}
+                value={sku}
+                onChange={(e) => setSku(e.target.value)}
+                placeholder="e.g. BEV-003"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 shadow-2xs"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Barcode *
+              </label>
+              <input
+                type="text"
+                required
+                disabled={isEditing}
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                placeholder="e.g. 8901003"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500 shadow-2xs"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Price ($) *
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={priceStr}
+                onChange={(e) => setPriceStr(e.target.value)}
+                placeholder="0.00"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Sales Tax (%)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={taxRatePctStr}
+                onChange={(e) => setTaxRatePctStr(e.target.value)}
+                placeholder="8.25"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+              />
+            </div>
+          </div>
+
+          {!isEditing && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Initial Stock
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={stockStr}
+                  onChange={(e) => setStockStr(e.target.value)}
+                  placeholder="10"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Low Stock Alert
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={minAlertStr}
+                  onChange={(e) => setMinAlertStr(e.target.value)}
+                  placeholder="5"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+                />
+              </div>
+            </div>
+          )}
+
+          {isEditing && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Low Stock Alert Threshold
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={minAlertStr}
+                onChange={(e) => setMinAlertStr(e.target.value)}
+                placeholder="5"
+                className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Description (Optional)
+            </label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief item description..."
+              className="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+            />
+          </div>
+
+          {errorMsg && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-lg text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-1.5"
+            >
+              <Check className="w-4 h-4" />
+              <span>{isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Product'}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}

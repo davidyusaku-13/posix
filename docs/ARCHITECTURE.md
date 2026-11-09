@@ -151,8 +151,12 @@ All endpoints use resource nouns (no RPC verbs), proper plural collections, and 
 |---|---|---|---|---|
 | List all products | `GET` | `/api/v1/products` | `200 OK` | Array of product objects |
 | Search products | `GET` | `/api/v1/products?q={query}` | `200 OK` | Filtered array |
+| Filter low stock | `GET` | `/api/v1/products?low_stock=true` | `200 OK` | Products with stock <= min_stock_alert |
 | Barcode/SKU lookup | `GET` | `/api/v1/products?code={barcode_or_sku}` | `200 OK` or `404 Not Found` | Single product |
 | Get product by ID | `GET` | `/api/v1/products/{id}` | `200 OK` or `404 Not Found` | Single product |
+| Create product | `POST` | `/api/v1/products` | `201 Created` | `Location: /api/v1/products/{id}`, Product object |
+| Update product | `PUT` | `/api/v1/products/{id}` | `200 OK` | Updated product object |
+| Adjust stock | `POST` | `/api/v1/products/{id}/stock` | `200 OK` | Product with updated stock |
 | Create order (Checkout) | `POST` | `/api/v1/orders` | `201 Created` | `Location: /api/v1/orders/{id}`, Order receipt |
 | List recent orders | `GET` | `/api/v1/orders` | `200 OK` | Array of recent orders |
 | Get order by ID | `GET` | `/api/v1/orders/{id}` | `200 OK` or `404 Not Found` | Order with line items & payment |
