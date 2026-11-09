@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Receipt, DollarSign, ShoppingBag, Banknote, CreditCard, RefreshCw, Eye, AlertTriangle } from 'lucide-react'
+import { Receipt, DollarSign, ShoppingBag, Banknote, CreditCard, RefreshCw, Eye, AlertTriangle, User } from 'lucide-react'
 import type { CheckoutResponse, Order, OrdersRecap } from '../types/pos'
 import { posApi } from '../services/api'
 import { formatCents } from '../utils/format'
@@ -168,6 +168,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
               <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-wider bg-slate-50/50">
                 <th className="py-2.5 px-4">Receipt Number</th>
                 <th className="py-2.5 px-4">Date & Time</th>
+                <th className="py-2.5 px-4">Cashier</th>
                 <th className="py-2.5 px-4 text-right">Subtotal</th>
                 <th className="py-2.5 px-4 text-right">Tax</th>
                 <th className="py-2.5 px-4 text-right">Total Amount</th>
@@ -180,7 +181,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
                 <tr
                   key={o.id}
                   onClick={() => handleInspectOrder(o.id)}
-                  className="hover:bg-emerald-50/20 cursor-pointer transition"
+                  className="hover:bg-slate-50 cursor-pointer transition"
                 >
                   <td className="py-3 px-4 font-mono font-bold text-slate-900">
                     {o.receiptNumber}
@@ -188,17 +189,27 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
                   <td className="py-3 px-4 font-mono text-slate-500 text-[11px]">
                     {new Date(o.createdAt).toLocaleString()}
                   </td>
+                  <td className="py-3 px-4 text-slate-700 font-medium">
+                    {o.cashierName ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-slate-800 font-semibold">
+                        <User className="w-3.5 h-3.5 text-primary" />
+                        {o.cashierName}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 font-mono text-[11px]">—</span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-right font-mono text-slate-600">
                     {formatCents(o.subtotalCents)}
                   </td>
                   <td className="py-3 px-4 text-right font-mono text-slate-600">
                     {formatCents(o.taxCents)}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-extrabold text-emerald-700 text-sm">
+                  <td className="py-3 px-4 text-right font-mono font-extrabold text-primary text-sm">
                     {formatCents(o.totalCents)}
                   </td>
                   <td className="py-3 px-4 text-center">
-                    <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="inline-flex px-2 py-0.5 rounded-none text-[10px] font-bold uppercase bg-[#f5efe6] text-primary border border-[#e2d7c8]">
                       {o.status}
                     </span>
                   </td>
@@ -208,7 +219,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
                         e.stopPropagation()
                         handleInspectOrder(o.id)
                       }}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-md transition shadow-2xs"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-none transition shadow-2xs border border-slate-200"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Inspect</span>

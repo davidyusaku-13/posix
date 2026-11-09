@@ -6,6 +6,7 @@ import { ReceiptModal } from '../../components/ReceiptModal'
 import type { CheckoutResponse, Product } from '../../types/pos'
 import { posApi } from '../../services/api'
 import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/AuthContext'
 
 interface RegisterPageProps {
   products: Product[]
@@ -18,6 +19,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   isLoading,
   onRefreshProducts,
 }) => {
+  const { currentUser } = useAuth()
   const { cart, totalCents, addToCart, updateQuantity, removeItem, clearCart } = useCart()
   const [isPaymentOpen, setIsPaymentOpen] = useState(false)
   const [completedReceipt, setCompletedReceipt] = useState<CheckoutResponse | null>(null)
@@ -42,10 +44,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
       quantity: item.quantity,
     }))
 
-    const receipt = await posApi.createOrder(items, {
-      method: paymentMethod,
-      amountTenderedCents,
-    })
+    const receipt = await posApi.createOrder(
+      items,
+      {
+        method: paymentMethod,
+        amountTenderedCents,
+      },
+      currentUser ? { id: currentUser.id, name: currentUser.name } : undefined
+    )
 
     setCompletedReceipt(receipt)
     setIsPaymentOpen(false)

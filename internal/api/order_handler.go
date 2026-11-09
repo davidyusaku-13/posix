@@ -63,6 +63,14 @@ func (h *OrderHandler) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Auto-populate cashier attribution from authenticated context if not explicitly set
+	if req.CashierName == "" {
+		if u := GetAuthenticatedUser(r); u != nil {
+			req.CashierID = &u.ID
+			req.CashierName = u.Name
+		}
+	}
+
 	resp, err := h.svc.CreateOrder(r.Context(), req)
 	if err != nil {
 		if errors.Is(err, domain.ErrEmptyCart) {

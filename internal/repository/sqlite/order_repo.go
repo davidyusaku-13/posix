@@ -19,9 +19,9 @@ func NewOrderRepository(db *sql.DB) *OrderRepository {
 func (r *OrderRepository) CreateOrderTx(ctx context.Context, tx *sql.Tx, order *domain.Order, items []domain.OrderItem, payment *domain.Payment) error {
 	// 1. Insert Order
 	_, err := tx.ExecContext(ctx, `
-		INSERT INTO orders (id, receipt_number, subtotal_cents, tax_cents, total_cents, status, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
-	`, order.ID, order.ReceiptNumber, order.SubtotalCents, order.TaxCents, order.TotalCents, order.Status, order.CreatedAt)
+		INSERT INTO orders (id, receipt_number, subtotal_cents, tax_cents, total_cents, status, cashier_id, cashier_name, created_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, order.ID, order.ReceiptNumber, order.SubtotalCents, order.TaxCents, order.TotalCents, order.Status, order.CashierID, order.CashierName, order.CreatedAt)
 	if err != nil {
 		return fmt.Errorf("failed to insert order: %w", err)
 	}
@@ -62,7 +62,7 @@ func (r *OrderRepository) List(ctx context.Context, limit int) ([]domain.Order, 
 		limit = 50
 	}
 	rows, err := r.db.QueryContext(ctx, `
-		SELECT id, receipt_number, subtotal_cents, tax_cents, total_cents, status, created_at
+		SELECT id, receipt_number, subtotal_cents, tax_cents, total_cents, status, cashier_id, cashier_name, created_at
 		FROM orders
 		ORDER BY created_at DESC
 		LIMIT ?
@@ -75,8 +75,16 @@ func (r *OrderRepository) List(ctx context.Context, limit int) ([]domain.Order, 
 	orders := make([]domain.Order, 0)
 	for rows.Next() {
 		var o domain.Order
-		if err := rows.Scan(&o.ID, &o.ReceiptNumber, &o.SubtotalCents, &o.TaxCents, &o.TotalCents, &o.Status, &o.CreatedAt); err != nil {
+		var cashierID sql.NullInt64
+		var cashierName sql.NullString
+		if err := rows.Scan(&o.ID, &o.ReceiptNumber, &o.SubtotalCents, &o.TaxCents, &o.TotalCents, &o.Status, &cashierID, &cashierName, &o.CreatedAt); err != nil {
 			return nil, fmt.Errorf("failed to scan order: %w", err)
+		}
+		if cashierID.Valid {
+			o.CashierID = &cashierID.Int64
+		}
+		if cashierName.Valid {
+			o.CashierName = cashierName.String
 		}
 		orders = append(orders, o)
 	}
@@ -85,16 +93,24 @@ func (r *OrderRepository) List(ctx context.Context, limit int) ([]domain.Order, 
 
 func (r *OrderRepository) GetByID(ctx context.Context, id string) (*domain.CheckoutResponse, error) {
 	var order domain.Order
+	var cashierID sql.NullInt64
+	var cashierName sql.NullString
 	err := r.db.QueryRowContext(ctx, `
-		SELECT id, receipt_number, subtotal_cents, tax_cents, total_cents, status, created_at
+		SELECT id, receipt_number, subtotal_cents, tax_cents, total_cents, status, cashier_id, cashier_name, created_at
 		FROM orders
 		WHERE id = ?
-	`, id).Scan(&order.ID, &order.ReceiptNumber, &order.SubtotalCents, &order.TaxCents, &order.TotalCents, &order.Status, &order.CreatedAt)
+	`, id).Scan(&order.ID, &order.ReceiptNumber, &order.SubtotalCents, &order.TaxCents, &order.TotalCents, &order.Status, &cashierID, &cashierName, &order.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, domain.ErrProductNotFound // Not found
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get order: %w", err)
+	}
+	if cashierID.Valid {
+		order.CashierID = &cashierID.Int64
+	}
+	if cashierName.Valid {
+		order.CashierName = cashierName.String
 	}
 
 	// Line items

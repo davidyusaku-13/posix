@@ -38,7 +38,9 @@ func TestOrderService_CreateOrder(t *testing.T) {
 		t.Fatalf("failed to find product: %v", err)
 	}
 
-	t.Run("successful cash order", func(t *testing.T) {
+	t.Run("successful cash order with cashier attribution", func(t *testing.T) {
+		cashierID := int64(1)
+		cashierName := "Front Desk Cashier"
 		req := domain.CheckoutRequest{
 			Items: []domain.CheckoutItemInput{
 				{ProductID: p.ID, Quantity: 2},
@@ -47,6 +49,8 @@ func TestOrderService_CreateOrder(t *testing.T) {
 				Method:              string(domain.PaymentMethodCash),
 				AmountTenderedCents: 3000,
 			},
+			CashierID:   &cashierID,
+			CashierName: cashierName,
 		}
 
 		resp, err := orderService.CreateOrder(ctx, req)
@@ -65,6 +69,12 @@ func TestOrderService_CreateOrder(t *testing.T) {
 		}
 		if resp.Payment.ChangeCents != 294 {
 			t.Errorf("expected change 294, got %d", resp.Payment.ChangeCents)
+		}
+		if resp.Order.CashierName != cashierName {
+			t.Errorf("expected cashier name %s, got %s", cashierName, resp.Order.CashierName)
+		}
+		if resp.Order.CashierID == nil || *resp.Order.CashierID != cashierID {
+			t.Errorf("expected cashier id %d, got %v", cashierID, resp.Order.CashierID)
 		}
 		if len(resp.Items) != 1 {
 			t.Errorf("expected 1 line item, got %d", len(resp.Items))

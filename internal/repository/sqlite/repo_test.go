@@ -197,6 +197,8 @@ func TestOrderRepository(t *testing.T) {
 
 	orderID := "test-order-uuid"
 	receiptNum := "RCP-20261108-0001"
+	cashierID := int64(1)
+	cashierName := "Alice Cashier"
 	order := &domain.Order{
 		ID:            orderID,
 		ReceiptNumber: receiptNum,
@@ -204,6 +206,8 @@ func TestOrderRepository(t *testing.T) {
 		TaxCents:      103,
 		TotalCents:    1353,
 		Status:        "completed",
+		CashierID:     &cashierID,
+		CashierName:   cashierName,
 		CreatedAt:     time.Now().UTC(),
 	}
 
@@ -246,11 +250,26 @@ func TestOrderRepository(t *testing.T) {
 	if retrieved.Order.ReceiptNumber != receiptNum {
 		t.Errorf("expected %s, got %s", receiptNum, retrieved.Order.ReceiptNumber)
 	}
+	if retrieved.Order.CashierName != cashierName {
+		t.Errorf("expected cashier name %s, got %s", cashierName, retrieved.Order.CashierName)
+	}
+	if retrieved.Order.CashierID == nil || *retrieved.Order.CashierID != cashierID {
+		t.Errorf("expected cashier ID %d, got %v", cashierID, retrieved.Order.CashierID)
+	}
 	if len(retrieved.Items) != 1 {
 		t.Fatalf("expected 1 item, got %d", len(retrieved.Items))
 	}
 	if retrieved.Payment.ChangeCents != 647 {
 		t.Errorf("expected change 647, got %d", retrieved.Payment.ChangeCents)
+	}
+
+	// Verify List orders includes cashier info
+	listOrders, err := orderRepo.List(ctx, 10)
+	if err != nil {
+		t.Fatalf("failed to list orders: %v", err)
+	}
+	if len(listOrders) == 0 || listOrders[0].CashierName != cashierName {
+		t.Errorf("expected listed order cashier name %s, got %v", cashierName, listOrders[0].CashierName)
 	}
 
 	t.Run("GetRecap calculates aggregate totals correctly", func(t *testing.T) {

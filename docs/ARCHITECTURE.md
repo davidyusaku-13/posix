@@ -102,6 +102,8 @@ CREATE TABLE IF NOT EXISTS orders (
     tax_cents INTEGER NOT NULL CHECK (tax_cents >= 0),
     total_cents INTEGER NOT NULL CHECK (total_cents >= 0),
     status TEXT NOT NULL DEFAULT 'completed' CHECK (status IN ('completed', 'voided')),
+    cashier_id INTEGER REFERENCES users(id),
+    cashier_name TEXT NOT NULL DEFAULT '',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

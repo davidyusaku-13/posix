@@ -41,17 +41,22 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         {/* Header */}
         <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Receipt className="w-5 h-5 text-emerald-600" />
+            <Receipt className="w-5 h-5 text-primary" />
             <div>
               <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 Order Audit: {order.receiptNumber}
-                <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-none">
+                <span className="text-[10px] uppercase font-bold text-primary bg-[#f5efe6] border border-[#e2d7c8] px-2 py-0.5 rounded-none">
                   {order.status}
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 font-mono">
-                {new Date(order.createdAt).toLocaleString()}
-              </p>
+              <div className="flex items-center gap-2 text-xs text-slate-500 font-mono mt-0.5">
+                <span>{new Date(order.createdAt).toLocaleString()}</span>
+                {order.cashierName && (
+                  <span className="text-slate-700 font-sans font-semibold">
+                    • Cashier: <span className="font-bold text-primary">{order.cashierName}</span>
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <button

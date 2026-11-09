@@ -25,6 +25,8 @@ type Order struct {
 	TaxCents      int64     `json:"taxCents"`
 	TotalCents    int64     `json:"totalCents"`
 	Status        string    `json:"status"` // 'completed', 'voided'
+	CashierID     *int64    `json:"cashierId,omitempty"`
+	CashierName   string    `json:"cashierName,omitempty"`
 	CreatedAt     time.Time `json:"createdAt"`
 }
 
@@ -74,8 +76,10 @@ type PaymentInput struct {
 
 // CheckoutRequest is the full payload sent by the cashier terminal.
 type CheckoutRequest struct {
-	Items   []CheckoutItemInput `json:"items"`
-	Payment PaymentInput        `json:"payment"`
+	Items       []CheckoutItemInput `json:"items"`
+	Payment     PaymentInput        `json:"payment"`
+	CashierID   *int64              `json:"cashierId,omitempty"`
+	CashierName string              `json:"cashierName,omitempty"`
 }
 
 // CheckoutResponse contains the finalized order, line items, and payment receipt.

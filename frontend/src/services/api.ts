@@ -232,12 +232,18 @@ export const posApi = {
 
   async createOrder(
     items: { productId: number; quantity: number }[],
-    payment: { method: 'cash' | 'card'; amountTenderedCents: number; referenceCode?: string }
+    payment: { method: 'cash' | 'card'; amountTenderedCents: number; referenceCode?: string },
+    cashier?: { id: number; name: string }
   ): Promise<CheckoutResponse> {
     const res = await fetch('/api/v1/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-      body: JSON.stringify({ items, payment }),
+      body: JSON.stringify({
+        items,
+        payment,
+        cashierId: cashier?.id,
+        cashierName: cashier?.name,
+      }),
     })
 
     if (!res.ok) {

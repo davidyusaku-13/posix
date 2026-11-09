@@ -41,6 +41,8 @@ export interface Order {
   taxCents: number
   totalCents: number
   status: string
+  cashierId?: number
+  cashierName?: string
   createdAt: string
 }
 

@@ -119,6 +119,8 @@ func (s *OrderService) CreateOrder(ctx context.Context, req domain.CheckoutReque
 			TaxCents:      taxCents,
 			TotalCents:    grandTotalCents,
 			Status:        "completed",
+			CashierID:     req.CashierID,
+			CashierName:   req.CashierName,
 			CreatedAt:     now,
 		}
 
@@ -146,6 +148,8 @@ func (s *OrderService) CreateOrder(ctx context.Context, req domain.CheckoutReque
 			TaxCents:      taxCents,
 			TotalCents:    subtotalCents + taxCents,
 			Status:        "completed",
+			CashierID:     req.CashierID,
+			CashierName:   req.CashierName,
 			CreatedAt:     now,
 		},
 		Items: orderItems,

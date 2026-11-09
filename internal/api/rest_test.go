@@ -216,6 +216,8 @@ func TestREST_OrderEndpoints(t *testing.T) {
 	_ = json.Unmarshal(rrList.Body.Bytes(), &product)
 
 	t.Run("POST /api/v1/orders returns 201 Created and Location header", func(t *testing.T) {
+		cashierID := int64(1)
+		cashierName := "Front Desk Cashier"
 		payload := domain.CheckoutRequest{
 			Items: []domain.CheckoutItemInput{
 				{ProductID: product.ID, Quantity: 1},
@@ -224,6 +226,8 @@ func TestREST_OrderEndpoints(t *testing.T) {
 				Method:              string(domain.PaymentMethodCash),
 				AmountTenderedCents: 2000,
 			},
+			CashierID:   &cashierID,
+			CashierName: cashierName,
 		}
 		body, _ := json.Marshal(payload)
 
@@ -247,6 +251,9 @@ func TestREST_OrderEndpoints(t *testing.T) {
 		}
 		if resp.Order.ID == "" {
 			t.Errorf("expected non-empty order ID")
+		}
+		if resp.Order.CashierName != cashierName {
+			t.Errorf("expected cashier name %s, got %s", cashierName, resp.Order.CashierName)
 		}
 	})
 

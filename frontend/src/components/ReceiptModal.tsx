@@ -66,9 +66,14 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ receipt, onNewSale }
         <div className="p-5 flex justify-center bg-slate-100/70 print:p-0 print:bg-transparent">
           <div className="receipt-paper w-full p-4 rounded-none text-xs shadow-xs space-y-3 bg-white print:p-0 print:shadow-none print:border-none print:rounded-none">
             {/* Store title */}
-            <div className="text-center pb-2 border-b border-dashed border-slate-300 print:border-slate-800">
+            <div className="text-center pb-2 border-b border-dashed border-slate-300 print:border-slate-800 space-y-0.5">
               <h2 className="font-extrabold text-sm tracking-widest uppercase text-slate-900">POSIX RETAIL</h2>
               <p className="text-[10px] text-slate-500 font-medium">Local POS Terminal #1</p>
+              {order.cashierName && (
+                <p className="text-[10px] font-semibold text-slate-700 print:text-slate-900">
+                  Cashier: {order.cashierName}
+                </p>
+              )}
               <p className="text-[10px] text-slate-400 font-mono mt-0.5 print:text-slate-600">
                 {new Date(order.createdAt).toLocaleString()}
               </p>
