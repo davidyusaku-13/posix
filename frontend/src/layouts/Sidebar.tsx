@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
           {/* Register (All roles) */}
           <NavLink to="/" end className={navItemClass}>
             <ShoppingCart className="w-4 h-4" />
-            <span className="flex-1">Cashier Register</span>
+            <span className="flex-1">Register</span>
             {totalItemsCount > 0 && (
               <span className="px-1.5 py-0.5 rounded-none text-[10px] font-mono font-bold bg-[#f5efe6] text-primary border border-[#e2d7c8]">
                 {totalItemsCount}
@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
           {hasRole(['manager', 'admin']) && (
             <NavLink to="/inventory" className={navItemClass}>
               <Boxes className="w-4 h-4" />
-              <span className="flex-1">Inventory Control</span>
+              <span className="flex-1">Inventory</span>
               {lowStockCount > 0 && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-none text-[10px] bg-[#c26d17] text-white font-mono font-bold">
                   <AlertTriangle className="w-2.5 h-2.5" />
@@ -85,11 +85,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
             </NavLink>
           )}
 
-          {/* History (Manager & Admin) */}
+          {/* Orders (Manager & Admin) */}
           {hasRole(['manager', 'admin']) && (
             <NavLink to="/history" className={navItemClass}>
               <Receipt className="w-4 h-4" />
-              <span>Order History & Recaps</span>
+              <span className="flex-1">Orders</span>
             </NavLink>
           )}
 
@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ lowStockCount }) => {
           {hasRole(['admin']) && (
             <NavLink to="/users" className={navItemClass}>
               <Users className="w-4 h-4" />
-              <span>Staff Management (RBAC)</span>
+              <span className="flex-1">Staff</span>
             </NavLink>
           )}
         </nav>

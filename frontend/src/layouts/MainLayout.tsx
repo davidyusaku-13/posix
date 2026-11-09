@@ -31,15 +31,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   const getPageTitle = (pathname: string) => {
     switch (pathname) {
       case '/inventory':
-        return 'Inventory & Stock Control'
+        return 'Inventory'
       case '/history':
-        return 'Transaction History & Settlement Recaps'
+        return 'Orders'
       case '/users':
-        return 'Staff & User Management (RBAC)'
+        return 'Staff'
       case '/':
       case '/register':
       default:
-        return 'Cashier Register'
+        return 'Register'
     }
   }
 
