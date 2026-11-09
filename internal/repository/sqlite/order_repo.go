@@ -148,6 +148,53 @@ func (r *OrderRepository) CountToday(ctx context.Context, datePrefix string) (in
 	return count, nil
 }
 
+func (r *OrderRepository) GetRecap(ctx context.Context) (*domain.OrdersRecap, error) {
+	recap := &domain.OrdersRecap{}
+
+	// 1. Total completed orders, gross revenue, tax
+	err := r.db.QueryRowContext(ctx, `
+		SELECT 
+			COUNT(*), 
+			COALESCE(SUM(total_cents), 0), 
+			COALESCE(SUM(tax_cents), 0)
+		FROM orders
+		WHERE status = 'completed'
+	`).Scan(&recap.TotalOrders, &recap.TotalRevenueCents, &recap.TotalTaxCents)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query orders recap: %w", err)
+	}
+
+	// 2. Cash vs Card settled breakdown
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT 
+			p.payment_method, 
+			COALESCE(SUM(p.amount_tendered_cents - p.change_cents), 0)
+		FROM payments p
+		JOIN orders o ON p.order_id = o.id
+		WHERE o.status = 'completed'
+		GROUP BY p.payment_method
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query payments recap: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var method string
+		var amount int64
+		if err := rows.Scan(&method, &amount); err != nil {
+			return nil, err
+		}
+		if method == "cash" {
+			recap.TotalCashCents = amount
+		} else if method == "card" {
+			recap.TotalCardCents = amount
+		}
+	}
+
+	return recap, nil
+}
+
 func (r *OrderRepository) CountTodayTx(ctx context.Context, tx *sql.Tx, datePrefix string) (int, error) {
 	var count int
 	err := tx.QueryRowContext(ctx, `

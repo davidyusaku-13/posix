@@ -116,4 +116,41 @@ func TestOrderService_CreateOrder(t *testing.T) {
 			t.Fatalf("expected error for underpaid cash payment, got nil")
 		}
 	})
+
+	t.Run("get orders recap summary and focused order details", func(t *testing.T) {
+		// Create an order
+		created, err := orderService.CreateOrder(ctx, domain.CheckoutRequest{
+			Items: []domain.CheckoutItemInput{
+				{ProductID: p.ID, Quantity: 1},
+			},
+			Payment: domain.PaymentInput{
+				Method:              string(domain.PaymentMethodCash),
+				AmountTenderedCents: 1500,
+			},
+		})
+		if err != nil {
+			t.Fatalf("unexpected checkout error: %v", err)
+		}
+
+		// Recap test
+		recap, err := orderService.GetRecap(ctx)
+		if err != nil {
+			t.Fatalf("unexpected recap error: %v", err)
+		}
+		if recap.TotalOrders < 1 {
+			t.Errorf("expected at least 1 order in recap, got %d", recap.TotalOrders)
+		}
+
+		// Focused single order test
+		focused, err := orderService.GetOrderByID(ctx, created.Order.ID)
+		if err != nil {
+			t.Fatalf("unexpected get order error: %v", err)
+		}
+		if focused.Order.ReceiptNumber != created.Order.ReceiptNumber {
+			t.Errorf("expected %s, got %s", created.Order.ReceiptNumber, focused.Order.ReceiptNumber)
+		}
+		if len(focused.Items) != 1 {
+			t.Errorf("expected 1 line item, got %d", len(focused.Items))
+		}
+	})
 }

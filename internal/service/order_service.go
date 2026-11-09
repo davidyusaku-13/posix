@@ -167,3 +167,7 @@ func (s *OrderService) ListOrders(ctx context.Context, limit int) ([]domain.Orde
 func (s *OrderService) GetOrderByID(ctx context.Context, id string) (*domain.CheckoutResponse, error) {
 	return s.orderRepo.GetByID(ctx, id)
 }
+
+func (s *OrderService) GetRecap(ctx context.Context) (*domain.OrdersRecap, error) {
+	return s.orderRepo.GetRecap(ctx)
+}

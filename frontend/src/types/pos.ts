@@ -71,3 +71,11 @@ export interface CheckoutResponse {
   items: OrderItem[]
   payment: Payment
 }
+
+export interface OrdersRecap {
+  totalOrders: number
+  totalRevenueCents: number
+  totalTaxCents: number
+  totalCashCents: number
+  totalCardCents: number
+}

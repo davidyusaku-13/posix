@@ -252,4 +252,26 @@ func TestOrderRepository(t *testing.T) {
 	if retrieved.Payment.ChangeCents != 647 {
 		t.Errorf("expected change 647, got %d", retrieved.Payment.ChangeCents)
 	}
+
+	t.Run("GetRecap calculates aggregate totals correctly", func(t *testing.T) {
+		recap, err := orderRepo.GetRecap(ctx)
+		if err != nil {
+			t.Fatalf("failed to get recap: %v", err)
+		}
+		if recap.TotalOrders != 1 {
+			t.Errorf("expected 1 total order, got %d", recap.TotalOrders)
+		}
+		if recap.TotalRevenueCents != 1353 {
+			t.Errorf("expected 1353 total revenue, got %d", recap.TotalRevenueCents)
+		}
+		if recap.TotalTaxCents != 103 {
+			t.Errorf("expected 103 tax, got %d", recap.TotalTaxCents)
+		}
+		if recap.TotalCashCents != 1353 {
+			t.Errorf("expected 1353 cash, got %d", recap.TotalCashCents)
+		}
+		if recap.TotalCardCents != 0 {
+			t.Errorf("expected 0 card, got %d", recap.TotalCardCents)
+		}
+	})
 }

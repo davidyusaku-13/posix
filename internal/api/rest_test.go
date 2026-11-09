@@ -274,4 +274,53 @@ func TestREST_OrderEndpoints(t *testing.T) {
 			t.Errorf("expected INSUFFICIENT_PAYMENT, got %s", errResp.Error.Code)
 		}
 	})
+
+	t.Run("GET /api/v1/orders/recap returns aggregate sales summary", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/orders/recap", nil)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d. Body: %s", rr.Code, rr.Body.String())
+		}
+		var recap domain.OrdersRecap
+		if err := json.Unmarshal(rr.Body.Bytes(), &recap); err != nil {
+			t.Fatalf("failed to parse recap json: %v", err)
+		}
+		if recap.TotalOrders < 1 {
+			t.Errorf("expected at least 1 order, got %d", recap.TotalOrders)
+		}
+	})
+
+	t.Run("GET /api/v1/orders/{id} returns focused single order recap", func(t *testing.T) {
+		// First get the order list
+		reqList, _ := http.NewRequest(http.MethodGet, "/api/v1/orders", nil)
+		rrList := httptest.NewRecorder()
+		router.ServeHTTP(rrList, reqList)
+
+		var orders []domain.Order
+		_ = json.Unmarshal(rrList.Body.Bytes(), &orders)
+		if len(orders) == 0 {
+			t.Fatalf("expected orders in list")
+		}
+
+		targetOrder := orders[0]
+		reqFocused, _ := http.NewRequest(http.MethodGet, "/api/v1/orders/"+targetOrder.ID, nil)
+		rrFocused := httptest.NewRecorder()
+		router.ServeHTTP(rrFocused, reqFocused)
+
+		if rrFocused.Code != http.StatusOK {
+			t.Fatalf("expected 200 OK, got %d", rrFocused.Code)
+		}
+		var focused domain.CheckoutResponse
+		if err := json.Unmarshal(rrFocused.Body.Bytes(), &focused); err != nil {
+			t.Fatalf("failed to parse focused order: %v", err)
+		}
+		if focused.Order.ReceiptNumber != targetOrder.ReceiptNumber {
+			t.Errorf("expected %s, got %s", targetOrder.ReceiptNumber, focused.Order.ReceiptNumber)
+		}
+		if len(focused.Items) == 0 {
+			t.Errorf("expected order items in focused recap")
+		}
+	})
 }

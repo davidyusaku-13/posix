@@ -28,6 +28,15 @@ func (h *OrderHandler) HandleOrders(w http.ResponseWriter, r *http.Request) {
 	path := strings.Trim(strings.TrimPrefix(r.URL.Path, "/api/v1/orders"), "/")
 
 	if path != "" {
+		if path == "recap" {
+			if r.Method != http.MethodGet {
+				respondError(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only GET allowed on recap")
+				return
+			}
+			h.getRecap(w, r)
+			return
+		}
+
 		// Specific order by ID: GET /api/v1/orders/{id}
 		if r.Method != http.MethodGet {
 			respondError(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only GET allowed on specific order resource")
@@ -99,6 +108,15 @@ func (h *OrderHandler) listOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondJSON(w, http.StatusOK, orders)
+}
+
+func (h *OrderHandler) getRecap(w http.ResponseWriter, r *http.Request) {
+	recap, err := h.svc.GetRecap(r.Context())
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "INTERNAL_ERROR", err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, recap)
 }
 
 func (h *OrderHandler) getOrder(w http.ResponseWriter, r *http.Request, id string) {

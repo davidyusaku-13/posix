@@ -25,6 +25,7 @@ type OrderRepository interface {
 	CreateOrderTx(ctx context.Context, tx *sql.Tx, order *domain.Order, items []domain.OrderItem, payment *domain.Payment) error
 	List(ctx context.Context, limit int) ([]domain.Order, error)
 	GetByID(ctx context.Context, id string) (*domain.CheckoutResponse, error)
+	GetRecap(ctx context.Context) (*domain.OrdersRecap, error)
 	CountToday(ctx context.Context, datePrefix string) (int, error)
 	CountTodayTx(ctx context.Context, tx *sql.Tx, datePrefix string) (int, error)
 }

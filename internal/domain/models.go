@@ -110,3 +110,12 @@ type UpdateProductInput struct {
 type AdjustStockInput struct {
 	Delta int `json:"delta"`
 }
+
+// OrdersRecap represents the aggregate settlement summary across all orders.
+type OrdersRecap struct {
+	TotalOrders       int64 `json:"totalOrders"`
+	TotalRevenueCents int64 `json:"totalRevenueCents"`
+	TotalTaxCents     int64 `json:"totalTaxCents"`
+	TotalCashCents    int64 `json:"totalCashCents"`
+	TotalCardCents    int64 `json:"totalCardCents"`
+}

@@ -1,4 +1,4 @@
-import type { CheckoutResponse, CreateProductInput, Product, UpdateProductInput } from '../types/pos'
+import type { CheckoutResponse, CreateProductInput, Order, OrdersRecap, Product, UpdateProductInput } from '../types/pos'
 
 export interface ApiError {
   error: {
@@ -76,6 +76,36 @@ export const posApi = {
     if (!res.ok) {
       const err: ApiError = await res.json()
       throw new Error(err.error?.message || 'Failed to adjust stock')
+    }
+    return res.json()
+  },
+
+  // List recent orders
+  async getOrders(limit = 50): Promise<Order[]> {
+    const res = await fetch(`/api/v1/orders?limit=${limit}`)
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to fetch orders')
+    }
+    return res.json()
+  },
+
+  // Get single order with line items and payment (focused recap)
+  async getOrderById(id: string): Promise<CheckoutResponse> {
+    const res = await fetch(`/api/v1/orders/${id}`)
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to fetch order details')
+    }
+    return res.json()
+  },
+
+  // Get aggregate recap across all order history
+  async getOrdersRecap(): Promise<OrdersRecap> {
+    const res = await fetch('/api/v1/orders/recap')
+    if (!res.ok) {
+      const err: ApiError = await res.json()
+      throw new Error(err.error?.message || 'Failed to fetch orders recap')
     }
     return res.json()
   },

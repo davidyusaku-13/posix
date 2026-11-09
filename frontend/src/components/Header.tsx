@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Terminal, Clock, ShieldCheck, RefreshCw, ShoppingCart, Boxes, AlertTriangle } from 'lucide-react'
+import { Terminal, Clock, ShieldCheck, RefreshCw, ShoppingCart, Boxes, AlertTriangle, Receipt } from 'lucide-react'
 
 interface HeaderProps {
-  activeTab: 'cashier' | 'inventory'
-  onTabChange: (tab: 'cashier' | 'inventory') => void
+  activeTab: 'cashier' | 'inventory' | 'history'
+  onTabChange: (tab: 'cashier' | 'inventory' | 'history') => void
   lowStockCount: number
   onReset: () => void
   onRefreshCatalog: () => void
@@ -63,6 +63,18 @@ export const Header: React.FC<HeaderProps> = ({
                 {lowStockCount}
               </span>
             )}
+          </button>
+
+          <button
+            onClick={() => onTabChange('history')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+              activeTab === 'history'
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Receipt className="w-4 h-4" />
+            <span>Order History & Recaps</span>
           </button>
         </nav>
       </div>

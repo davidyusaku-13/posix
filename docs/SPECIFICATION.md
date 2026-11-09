@@ -56,6 +56,8 @@ POSIX is a lightweight, reliable, Linux-native Point of Sale system built for lo
 #### 2.6 Receipt & Audit History (FR-6)
 - **FR-6.1**: Every completed order generates a formatted receipt with timestamp, cashier, line items, taxes, payment method, amount tendered, and change.
 - **FR-6.2**: Historical order lookup: Cashiers can review past sales of the day and reprint receipts.
+- **FR-6.3 (All History Recap / Settlement)**: System provides an aggregate financial summary across all transactions: total completed orders, gross revenue, total tax collected, and payment breakdown (Cash Total vs. Card Total).
+- **FR-6.4 (Focused Single Order Recap)**: Cashiers can select any individual transaction to inspect the complete itemized breakdown (SKUs, quantities, line totals, taxes, tendered, change) with one-click receipt reprinting.
 
 ---
 

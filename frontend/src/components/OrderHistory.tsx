@@ -1,0 +1,225 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import { Receipt, DollarSign, ShoppingBag, Banknote, CreditCard, RefreshCw, Eye } from 'lucide-react'
+import type { CheckoutResponse, Order, OrdersRecap } from '../types/pos'
+import { posApi } from '../services/api'
+import { formatCents } from '../utils/format'
+import { OrderDetailModal } from './OrderDetailModal'
+
+interface OrderHistoryProps {
+  onReprintReceipt: (receipt: CheckoutResponse) => void
+}
+
+export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) => {
+  const [recap, setRecap] = useState<OrdersRecap | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedOrder, setSelectedOrder] = useState<CheckoutResponse | null>(null)
+
+  const loadData = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const [recapData, ordersData] = await Promise.all([
+        posApi.getOrdersRecap(),
+        posApi.getOrders(100),
+      ])
+      setRecap(recapData)
+      setOrders(ordersData)
+    } catch (err) {
+      console.error('Failed to load order history:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  const handleInspectOrder = async (orderId: string) => {
+    try {
+      const detail = await posApi.getOrderById(orderId)
+      setSelectedOrder(detail)
+    } catch (err: any) {
+      alert(err.message || 'Failed to load order audit')
+    }
+  }
+
+  return (
+    <div className="flex flex-col h-full bg-slate-50 p-6 overflow-hidden">
+      {/* Top Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <Receipt className="w-6 h-6 text-emerald-600" />
+            Transaction & Order History
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            View all-time financial settlement recaps and inspect individual transaction audit receipts
+          </p>
+        </div>
+
+        <button
+          onClick={loadData}
+          className="p-2 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-slate-600 hover:text-slate-900 transition shadow-2xs flex items-center gap-1.5 text-xs font-semibold"
+        >
+          <RefreshCw className="w-4 h-4" />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {/* Recap of All History (KPI Summary Cards) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {/* Total Revenue */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
+            <span>Total Gross Revenue</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <DollarSign className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
+            {recap ? formatCents(recap.totalRevenueCents) : '$0.00'}
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1">
+            Across {recap?.totalOrders || 0} completed transactions
+          </div>
+        </div>
+
+        {/* Total Orders Count */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
+            <span>Total Orders</span>
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
+            {recap?.totalOrders || 0}
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1">
+            Settled orders on this register
+          </div>
+        </div>
+
+        {/* Cash Settled */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
+            <span>Cash Volume</span>
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+              <Banknote className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
+            {recap ? formatCents(recap.totalCashCents) : '$0.00'}
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1">
+            Net cash drawer collections
+          </div>
+        </div>
+
+        {/* Card Settled */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">
+            <span>Card Volume</span>
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <CreditCard className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-extrabold text-slate-900 font-mono font-mono-nums">
+            {recap ? formatCents(recap.totalCardCents) : '$0.00'}
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1">
+            Electronic debit / credit card volume
+          </div>
+        </div>
+      </div>
+
+      {/* Order Ledger Table */}
+      <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+        <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Transaction Ledger ({orders.length})
+          </h3>
+          <span className="text-[11px] text-slate-400">
+            Click any row or 'Inspect' to view the focused single order recap
+          </span>
+        </div>
+
+        <div className="overflow-x-auto flex-1">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px] tracking-wider bg-slate-50/50">
+                <th className="py-2.5 px-4">Receipt Number</th>
+                <th className="py-2.5 px-4">Date & Time</th>
+                <th className="py-2.5 px-4 text-right">Subtotal</th>
+                <th className="py-2.5 px-4 text-right">Tax</th>
+                <th className="py-2.5 px-4 text-right">Total Amount</th>
+                <th className="py-2.5 px-4 text-center">Status</th>
+                <th className="py-2.5 px-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+              {orders.map((o) => (
+                <tr
+                  key={o.id}
+                  onClick={() => handleInspectOrder(o.id)}
+                  className="hover:bg-emerald-50/20 cursor-pointer transition"
+                >
+                  <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                    {o.receiptNumber}
+                  </td>
+                  <td className="py-3 px-4 font-mono text-slate-500 text-[11px]">
+                    {new Date(o.createdAt).toLocaleString()}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-slate-600">
+                    {formatCents(o.subtotalCents)}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-slate-600">
+                    {formatCents(o.taxCents)}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono font-extrabold text-emerald-700 text-sm">
+                    {formatCents(o.totalCents)}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {o.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleInspectOrder(o.id)
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-md transition shadow-2xs"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Inspect</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {orders.length === 0 && !isLoading && (
+            <div className="flex flex-col items-center justify-center p-12 text-slate-400">
+              <Receipt className="w-10 h-10 mb-2 stroke-[1.2]" />
+              <p className="text-sm font-semibold text-slate-500">No transactions recorded yet</p>
+              <p className="text-xs text-slate-400 mt-1">Complete your first checkout on the Cashier Register</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Focused Single Order Recap Modal */}
+      {selectedOrder && (
+        <OrderDetailModal
+          orderDetail={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onReprint={onReprintReceipt}
+        />
+      )}
+    </div>
+  )
+}

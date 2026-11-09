@@ -5,12 +5,13 @@ import { Cart } from './components/Cart'
 import { PaymentModal } from './components/PaymentModal'
 import { ReceiptModal } from './components/ReceiptModal'
 import { InventoryManager } from './components/InventoryManager'
+import { OrderHistory } from './components/OrderHistory'
 import type { Product, CartItem, CheckoutResponse, CreateProductInput, UpdateProductInput } from './types/pos'
 import { posApi } from './services/api'
 import { computeTaxCents } from './utils/format'
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'cashier' | 'inventory'>('cashier')
+  const [activeTab, setActiveTab] = useState<'cashier' | 'inventory' | 'history'>('cashier')
   const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -177,7 +178,7 @@ export function App() {
               />
             </section>
           </div>
-        ) : (
+        ) : activeTab === 'inventory' ? (
           <InventoryManager
             products={products}
             onRefresh={loadProducts}
@@ -185,6 +186,8 @@ export function App() {
             onUpdateProduct={handleUpdateProduct}
             onAdjustStock={handleAdjustStock}
           />
+        ) : (
+          <OrderHistory onReprintReceipt={(receipt) => setCompletedReceipt(receipt)} />
         )}
       </main>
 
@@ -197,7 +200,7 @@ export function App() {
         />
       )}
 
-      {/* Receipt Modal (Post Checkout) */}
+      {/* Receipt Modal (Post Checkout or Reprint) */}
       {completedReceipt && (
         <ReceiptModal
           receipt={completedReceipt}

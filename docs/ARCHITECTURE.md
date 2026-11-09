@@ -158,8 +158,9 @@ All endpoints use resource nouns (no RPC verbs), proper plural collections, and 
 | Update product | `PUT` | `/api/v1/products/{id}` | `200 OK` | Updated product object |
 | Adjust stock | `POST` | `/api/v1/products/{id}/stock` | `200 OK` | Product with updated stock |
 | Create order (Checkout) | `POST` | `/api/v1/orders` | `201 Created` | `Location: /api/v1/orders/{id}`, Order receipt |
+| Get all history recap | `GET` | `/api/v1/orders/recap` | `200 OK` | Aggregate metrics (orders, gross revenue, tax, cash, card) |
 | List recent orders | `GET` | `/api/v1/orders` | `200 OK` | Array of recent orders |
-| Get order by ID | `GET` | `/api/v1/orders/{id}` | `200 OK` or `404 Not Found` | Order with line items & payment |
+| Get focused order recap | `GET` | `/api/v1/orders/{id}` | `200 OK` or `404 Not Found` | Order with line items & payment |
 | Health check | `GET` | `/api/v1/health` | `200 OK` | `{"status":"healthy","system":"POSIX"}` |
 
 #### Standardized Error Schema
