@@ -9,6 +9,10 @@ bin/
 *.db
 *.db-wal
 *.db-shm
+test_*.db*
+
+# Temp pdfs & artifacts
+*.pdf
 
 # Node dependencies
 node_modules/

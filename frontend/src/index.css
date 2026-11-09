@@ -38,3 +38,73 @@
   border: 1px solid #e2e8f0;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
+
+/* Print optimization for clean 80mm thermal receipts */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  /* When printing receipts, hide the entire underlying application */
+  body.has-receipt-modal #root,
+  body:has(#receipt-modal-portal) #root {
+    display: none !important;
+  }
+
+  body.has-receipt-modal,
+  body:has(#receipt-modal-portal) {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Receipt portal overrides */
+  #receipt-modal-portal {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Remove all shadows, borders, and margins from modal wrapper in print */
+  #receipt-modal-portal > div {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 80mm !important;
+    width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Force hide all non-receipt elements */
+  .print\:hidden,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Receipt slip formatting for 80mm thermal paper */
+  .receipt-paper {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 4mm 3mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .receipt-paper * {
+    color: #000000 !important;
+  }
+}
