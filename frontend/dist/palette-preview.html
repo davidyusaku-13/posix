@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POSIX — Warm Brown Palette Comparison</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* THEME 1: Espresso & Cream */
+    body.theme-espresso {
+      --bg-page: #fbf8f4;
+      --bg-surface: #ffffff;
+      --bg-surface-subtle: #f5f0ea;
+      --border-color: #e6ded5;
+      --border-subtle: #eee7de;
+      --text-main: #2a1b12;
+      --text-muted: #7d6b5e;
+      --text-faint: #a8978a;
+      --primary: #4a2c16;
+      --primary-hover: #3d2412;
+      --primary-foreground: #ffffff;
+      --accent: #c26d17;
+      --accent-subtle: #fdf3e7;
+      --accent-border: #f4d3a8;
+      --accent-foreground: #8f4d08;
+      --badge-bg: #f5efe6;
+      --badge-text: #4a2c16;
+      --badge-border: #e2d7c8;
+      --active-nav: #4a2c16;
+      --active-nav-text: #ffffff;
+    }
+
+    /* THEME 2: Terracotta & Warm Stone */
+    body.theme-terracotta {
+      --bg-page: #f9f6f2;
+      --bg-surface: #ffffff;
+      --bg-surface-subtle: #f3ece4;
+      --border-color: #e5ddd4;
+      --border-subtle: #ece5dc;
+      --text-main: #2d1812;
+      --text-muted: #7f645b;
+      --text-faint: #aa938b;
+      --primary: #8e3d23;
+      --primary-hover: #76321b;
+      --primary-foreground: #ffffff;
+      --accent: #ba6848;
+      --accent-subtle: #fbf0ec;
+      --accent-border: #f2cebe;
+      --accent-foreground: #7a2f17;
+      --badge-bg: #f5ebe6;
+      --badge-text: #8e3d23;
+      --badge-border: #dfd0c7;
+      --active-nav: #8e3d23;
+      --active-nav-text: #ffffff;
+    }
+
+    /* THEME 3: Saddle Leather & Brass */
+    body.theme-saddle {
+      --bg-page: #f8f4ec;
+      --bg-surface: #ffffff;
+      --bg-surface-subtle: #f2ebdE;
+      --border-color: #e2dbcc;
+      --border-subtle: #eae3d5;
+      --text-main: #2b1c11;
+      --text-muted: #7b6957;
+      --text-faint: #a59583;
+      --primary: #684126;
+      --primary-hover: #55341d;
+      --primary-foreground: #ffffff;
+      --accent: #b87b22;
+      --accent-subtle: #fdf5e7;
+      --accent-border: #f2dcaf;
+      --accent-foreground: #84530c;
+      --badge-bg: #f3ede2;
+      --badge-text: #684126;
+      --badge-border: #dcd3c2;
+      --active-nav: #684126;
+      --active-nav-text: #ffffff;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Navigation Switcher */
+    .theme-bar {
+      max-width: 1200px;
+      margin: 0 auto 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .theme-bar h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+
+    .theme-bar p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .palette-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .palette-btn {
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-subtle);
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .palette-btn:hover {
+      background: var(--bg-surface);
+      border-color: var(--text-muted);
+    }
+
+    .palette-btn.active {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .swatch-dot {
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+    }
+
+    /* Palette Breakdown Card */
+    .specs-card {
+      max-width: 1200px;
+      margin: 0 auto 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 18px 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .spec-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .spec-color {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .spec-box {
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* POS UI Mockup Screen */
+    .pos-screen {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 720px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: var(--primary);
+    }
+
+    .brand-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-pill {
+      margin-top: 12px;
+      padding: 6px 10px;
+      background: var(--accent-subtle);
+      border: 1px solid var(--accent-border);
+      color: var(--accent-foreground);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .terminal-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+    }
+
+    .nav-links {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-surface-subtle);
+      color: var(--text-main);
+    }
+
+    .nav-item.active {
+      background: var(--active-nav);
+      color: var(--active-nav-text);
+    }
+
+    .nav-badge {
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-surface-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .operator-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .operator-role {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 48px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Catalog & Cart Layout */
+    .register-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      min-height: 0;
+    }
+
+    /* Catalog Side */
+    .catalog-side {
+      padding: 18px;
+      background: var(--bg-surface-subtle);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .barcode-input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      border: 2px solid var(--primary);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .product-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 130px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .product-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .card-sku {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .card-price {
+      font-size: 15px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+    }
+
+    .card-stock {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      border: 1px solid var(--badge-border);
+    }
+
+    /* Cart Side */
+    .cart-side {
+      background: var(--bg-surface);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cart-header {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cart-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cart-row {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cart-row-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .cart-row-sub {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    .cart-row-price {
+      font-size: 13px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+    }
+
+    .cart-summary {
+      border-top: 1px solid var(--border-color);
+      padding-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .summary-line.total {
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .total-val {
+      font-size: 22px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--primary);
+    }
+
+    .pay-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border: none;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+
+    .pay-btn:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body class="theme-espresso">
+
+  <!-- Switcher Header -->
+  <header class="theme-bar">
+    <div>
+      <h1>POSIX — Warm Tone Palette Preview (Lyra Style)</h1>
+      <p>Click below to dynamically switch the entire POS interface between the 3 warm palettes</p>
+    </div>
+    <div class="palette-buttons">
+      <button class="palette-btn active" id="btn-espresso" onclick="setTheme('theme-espresso')">
+        <span class="swatch-dot" style="background:#4A2C16;"></span>
+        1. Espresso & Cream
+      </button>
+      <button class="palette-btn" id="btn-terracotta" onclick="setTheme('theme-terracotta')">
+        <span class="swatch-dot" style="background:#8E3D23;"></span>
+        2. Terracotta & Stone
+      </button>
+      <button class="palette-btn" id="btn-saddle" onclick="setTheme('theme-saddle')">
+        <span class="swatch-dot" style="background:#684126;"></span>
+        3. Saddle & Brass
+      </button>
+    </div>
+  </header>
+
+  <!-- Color Tokens Card -->
+  <section class="specs-card">
+    <div class="spec-item">
+      <span class="spec-label">Primary Color</span>
+      <div class="spec-color">
+        <span class="spec-box" id="swatch-primary" style="background:var(--primary);"></span>
+        <span id="name-primary">#4A2C16 (Espresso)</span>
+      </div>
+    </div>
+    <div class="spec-item">
+      <span class="spec-label">Accent / Highlights</span>
+      <div class="spec-color">
+        <span class="spec-box" id="swatch-accent" style="background:var(--accent);"></span>
+        <span id="name-accent">#C26D17 (Caramel Honey)</span>
+      </div>
+    </div>
+    <div class="spec-item">
+      <span class="spec-label">Canvas Background</span>
+      <div class="spec-color">
+        <span class="spec-box" id="swatch-bg" style="background:var(--bg-page);"></span>
+        <span id="name-bg">#FBF8F4 (Oat Milk)</span>
+      </div>
+    </div>
+    <div class="spec-item">
+      <span class="spec-label">Border & Lines</span>
+      <div class="spec-color">
+        <span class="spec-box" id="swatch-border" style="background:var(--border-color);"></span>
+        <span id="name-border">#E6DED5 (Sand Border)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- POS Terminal Mockup (Lyra Style - Square Corners) -->
+  <div class="pos-screen">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-header">
+          <div class="brand-title">POSIX</div>
+          <div class="brand-sub">POINT OF SALE</div>
+          <div class="terminal-pill">
+            <span class="terminal-dot"></span>
+            Terminal #1 Active
+          </div>
+        </div>
+
+        <nav class="nav-links">
+          <div class="nav-item active">
+            <span>Cashier Register</span>
+            <span class="nav-badge">3</span>
+          </div>
+          <div class="nav-item">
+            <span>Inventory Control</span>
+          </div>
+          <div class="nav-item">
+            <span>Order History & Recaps</span>
+          </div>
+          <div class="nav-item">
+            <span>Staff Management</span>
+          </div>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div>
+          <div class="operator-name">Alex Johnson</div>
+          <div class="operator-role">Front Desk Cashier</div>
+        </div>
+        <span style="font-size:11px; font-weight:700; color:var(--text-muted); cursor:pointer;">LOCK</span>
+      </div>
+    </aside>
+
+    <!-- Main Register Area -->
+    <main class="main-content">
+      <div class="topbar">
+        <span>Cashier Register</span>
+        <div class="clock font-mono">15:42:08 • Offline Ready</div>
+      </div>
+
+      <div class="register-body">
+        <!-- Catalog Left (7 cols) -->
+        <section class="catalog-side">
+          <input
+            type="text"
+            class="barcode-input"
+            value="8901001"
+            placeholder="Scan Barcode or type SKU..."
+          />
+
+          <div class="catalog-grid">
+            <div class="product-card">
+              <div>
+                <div class="card-sku">BEV-001 • 8901001</div>
+                <div class="card-title">Espresso Whole Bean (340g)</div>
+              </div>
+              <div class="card-bottom">
+                <span class="card-price">$12.50</span>
+                <span class="card-stock">45 in stock</span>
+              </div>
+            </div>
+
+            <div class="product-card">
+              <div>
+                <div class="card-sku">BEV-002 • 8901002</div>
+                <div class="card-title">Cold Brew Bottle 330ml</div>
+              </div>
+              <div class="card-bottom">
+                <span class="card-price">$4.50</span>
+                <span class="card-stock">60 in stock</span>
+              </div>
+            </div>
+
+            <div class="product-card">
+              <div>
+                <div class="card-sku">SNK-001 • 8902001</div>
+                <div class="card-title">Almond Biscotti Single</div>
+              </div>
+              <div class="card-bottom">
+                <span class="card-price">$2.95</span>
+                <span class="card-stock">50 in stock</span>
+              </div>
+            </div>
+
+            <div class="product-card">
+              <div>
+                <div class="card-sku">MER-001 • 8904001</div>
+                <div class="card-title">POSIX Canvas Tote Bag</div>
+              </div>
+              <div class="card-bottom">
+                <span class="card-price">$15.00</span>
+                <span class="card-stock">17 in stock</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cart Right (5 cols) -->
+        <section class="cart-side">
+          <div class="cart-header">
+            <div class="cart-title">
+              <span>Current Order</span>
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted);">(3 items)</span>
+            </div>
+            <span style="font-size:11px; font-weight:700; color:#dc2626; cursor:pointer;">Void</span>
+          </div>
+
+          <div class="cart-items">
+            <div class="cart-row">
+              <div>
+                <div class="cart-row-title">Espresso Whole Bean</div>
+                <div class="cart-row-sub">1 x $12.50</div>
+              </div>
+              <div class="cart-row-price">$12.50</div>
+            </div>
+
+            <div class="cart-row">
+              <div>
+                <div class="cart-row-title">Cold Brew Bottle</div>
+                <div class="cart-row-sub">1 x $4.50</div>
+              </div>
+              <div class="cart-row-price">$4.50</div>
+            </div>
+
+            <div class="cart-row">
+              <div>
+                <div class="cart-row-title">Almond Biscotti</div>
+                <div class="cart-row-sub">1 x $2.95</div>
+              </div>
+              <div class="cart-row-price">$2.95</div>
+            </div>
+          </div>
+
+          <div class="cart-summary">
+            <div class="summary-line">
+              <span>Subtotal</span>
+              <span class="font-mono font-bold">$19.95</span>
+            </div>
+            <div class="summary-line">
+              <span>Estimated Tax (8.25%)</span>
+              <span class="font-mono font-bold">$1.65</span>
+            </div>
+            <div class="summary-line total">
+              <span>Total Due</span>
+              <span class="total-val">$21.60</span>
+            </div>
+
+            <button class="pay-btn">
+              <span>Pay $21.60</span>
+              <span>→</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const data = {
+      'theme-espresso': {
+        primary: '#4A2C16 (Espresso Brown)',
+        accent: '#C26D17 (Caramel Honey)',
+        bg: '#FBF8F4 (Oat Milk Canvas)',
+        border: '#E6DED5 (Sand Border)'
+      },
+      'theme-terracotta': {
+        primary: '#8E3D23 (Baked Terracotta / Rust)',
+        accent: '#BA6848 (Warm Clay)',
+        bg: '#F9F6F2 (Soft Linen Canvas)',
+        border: '#E5DDD4 (Pale Clay Border)'
+      },
+      'theme-saddle': {
+        primary: '#684126 (Saddle Leather Brown)',
+        accent: '#B87B22 (Burnished Brass Gold)',
+        bg: '#F8F4EC (Warm Bone Canvas)',
+        border: '#E2DBCC (Parchment Border)'
+      }
+    };
+
+    function setTheme(theme) {
+      document.body.className = theme;
+      document.querySelectorAll('.palette-btn').forEach(btn => btn.classList.remove('active'));
+
+      if (theme === 'theme-espresso') document.getElementById('btn-espresso').classList.add('active');
+      if (theme === 'theme-terracotta') document.getElementById('btn-terracotta').classList.add('active');
+      if (theme === 'theme-saddle') document.getElementById('btn-saddle').classList.add('active');
+
+      const info = data[theme];
+      document.getElementById('name-primary').innerText = info.primary;
+      document.getElementById('name-accent').innerText = info.accent;
+      document.getElementById('name-bg').innerText = info.bg;
+      document.getElementById('name-border').innerText = info.border;
+    }
+  </script>
+</body>
+</html>
