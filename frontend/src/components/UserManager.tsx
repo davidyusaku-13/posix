@@ -2,11 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Users, UserPlus, X, Edit3, Trash2, RefreshCw, AlertCircle } from 'lucide-react'
 import type { Role, UpdateUserInput, User } from '../types/pos'
 import { posApi } from '../services/api'
+import { ConfirmModal } from './common/ConfirmModal'
 
 export const UserManager: React.FC = () => {
   const [users, setUsers] = useState<User[]>([])
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [deletingUser, setDeletingUser] = useState<User | null>(null)
+  const [deleteErrorMsg, setDeleteErrorMsg] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Form states
   const [username, setUsername] = useState('')
@@ -17,6 +21,19 @@ export const UserManager: React.FC = () => {
   const [isActive, setIsActive] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  // Escape key closes open modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (deletingUser && !isDeleting) setDeletingUser(null)
+        else if (isAddOpen && !isSubmitting) setIsAddOpen(false)
+        else if (editingUser && !isSubmitting) setEditingUser(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [deletingUser, isDeleting, isAddOpen, editingUser, isSubmitting])
 
   const loadUsers = useCallback(async () => {
     try {
@@ -106,14 +123,23 @@ export const UserManager: React.FC = () => {
     }
   }
 
-  const handleDelete = async (u: User) => {
-    if (confirm(`Are you sure you want to delete staff account '${u.name}'?`)) {
-      try {
-        await posApi.deleteUser(u.id)
-        await loadUsers()
-      } catch (err: any) {
-        alert(err.message || 'Failed to delete user')
-      }
+  const handleDeleteClick = (u: User) => {
+    setDeletingUser(u)
+    setDeleteErrorMsg(null)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deletingUser) return
+    setIsDeleting(true)
+    setDeleteErrorMsg(null)
+    try {
+      await posApi.deleteUser(deletingUser.id)
+      setDeletingUser(null)
+      await loadUsers()
+    } catch (err: any) {
+      setDeleteErrorMsg(err.message || 'Failed to delete user')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -223,7 +249,8 @@ export const UserManager: React.FC = () => {
                       </button>
                       {u.username !== 'admin' && (
                         <button
-                          onClick={() => handleDelete(u)}
+                          type="button"
+                          onClick={() => handleDeleteClick(u)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition"
                           title="Delete staff account"
                         >
@@ -447,6 +474,40 @@ export const UserManager: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Reusable Delete Staff Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deletingUser}
+        title="Delete Staff Member?"
+        cancelLabel="Cancel"
+        confirmLabel="Delete Staff"
+        variant="danger"
+        confirmIcon={<Trash2 className="w-3.5 h-3.5" />}
+        isLoading={isDeleting}
+        errorMsg={deleteErrorMsg}
+        onCancel={() => setDeletingUser(null)}
+        onConfirm={handleConfirmDelete}
+      >
+        {deletingUser && (
+          <>
+            <div className="my-3 p-3 bg-slate-50 border border-slate-200 rounded-xl text-left">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800 text-sm truncate">{deletingUser.name}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${getRoleBadge(deletingUser.role)}`}>
+                  {deletingUser.role}
+                </span>
+              </div>
+              <div className="text-xs text-slate-500 font-mono mt-1">
+                Username: @{deletingUser.username}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Are you sure you want to delete this staff account? Their terminal access, PIN credentials, and role privileges will be permanently revoked.
+            </p>
+          </>
+        )}
+      </ConfirmModal>
     </div>
   )
 }

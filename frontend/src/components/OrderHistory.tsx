@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Receipt, DollarSign, ShoppingBag, Banknote, CreditCard, RefreshCw, Eye } from 'lucide-react'
+import { Receipt, DollarSign, ShoppingBag, Banknote, CreditCard, RefreshCw, Eye, AlertTriangle } from 'lucide-react'
 import type { CheckoutResponse, Order, OrdersRecap } from '../types/pos'
 import { posApi } from '../services/api'
 import { formatCents } from '../utils/format'
@@ -14,6 +14,7 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<CheckoutResponse | null>(null)
+  const [errorBanner, setErrorBanner] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -37,16 +38,32 @@ export const OrderHistory: React.FC<OrderHistoryProps> = ({ onReprintReceipt }) 
 
   const handleInspectOrder = async (orderId: string) => {
     try {
+      setErrorBanner(null)
       const detail = await posApi.getOrderById(orderId)
       setSelectedOrder(detail)
     } catch (err: any) {
-      alert(err.message || 'Failed to load order audit')
+      setErrorBanner(err.message || 'Failed to load order audit')
     }
   }
 
   return (
     <div className="flex flex-col h-full bg-slate-50 p-6 overflow-hidden">
       {/* Top Header */}
+      {errorBanner && (
+        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{errorBanner}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorBanner(null)}
+            className="text-rose-500 hover:text-rose-800 font-bold text-xs"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">

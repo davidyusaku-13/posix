@@ -26,6 +26,7 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
   const [restockProductId, setRestockProductId] = useState<number | null>(null)
   const [customDeltaStr, setCustomDeltaStr] = useState('')
   const [isAdjusting, setIsAdjusting] = useState(false)
+  const [errorBanner, setErrorBanner] = useState<string | null>(null)
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -41,11 +42,12 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
   const handleQuickRestock = async (productId: number, delta: number) => {
     try {
       setIsAdjusting(true)
+      setErrorBanner(null)
       await onAdjustStock(productId, delta)
       setRestockProductId(null)
       setCustomDeltaStr('')
     } catch (err: any) {
-      alert(err.message || 'Failed to adjust stock')
+      setErrorBanner(err.message || 'Failed to adjust stock')
     } finally {
       setIsAdjusting(false)
     }
@@ -85,6 +87,21 @@ export const InventoryManager: React.FC<InventoryManagerProps> = ({
       </div>
 
       {/* Filter & Search Bar */}
+      {errorBanner && (
+        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{errorBanner}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorBanner(null)}
+            className="text-rose-500 hover:text-rose-800 font-bold text-xs"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs mb-4">
         {/* Search */}
         <div className="relative flex-1 w-full sm:w-auto">

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, AlertTriangle, X } from 'lucide-react'
+import React, { useState } from 'react'
+import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from 'lucide-react'
 import type { CartItem } from '../types/pos'
 import { formatCents, computeTaxCents } from '../utils/format'
+import { ConfirmModal } from './common/ConfirmModal'
 
 interface CartProps {
   items: CartItem[]
@@ -19,17 +20,6 @@ export const Cart: React.FC<CartProps> = ({
   onCheckout,
 }) => {
   const [showVoidModal, setShowVoidModal] = useState(false)
-
-  // Keyboard shortcut: Escape closes the void modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showVoidModal) {
-        setShowVoidModal(false)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showVoidModal])
 
   // Compute totals
   const subtotalCents = items.reduce(
@@ -169,66 +159,26 @@ export const Cart: React.FC<CartProps> = ({
         </button>
       </div>
 
-      {/* Stylized Void Order Confirmation Modal */}
-      {showVoidModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
-          onClick={() => setShowVoidModal(false)}
-        >
-          <div
-            className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 text-center relative select-none"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
-              type="button"
-              onClick={() => setShowVoidModal(false)}
-              className="absolute top-4 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* Warning Icon */}
-            <div className="w-12 h-12 mx-auto mb-4 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-600 flex items-center justify-center shadow-2xs">
-              <AlertTriangle className="w-6 h-6 stroke-[2.2]" />
-            </div>
-
-            {/* Title & Description */}
-            <h3 className="text-lg font-black text-slate-900 tracking-wide">
-              Void Active Order?
-            </h3>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              Are you sure you want to void this transaction? All{' '}
-              <strong className="text-slate-700 font-mono">
-                {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
-              </strong>{' '}
-              ({formatCents(totalCents)}) currently in the cart will be cleared.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="mt-6 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowVoidModal(false)}
-                className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition active:scale-95"
-              >
-                Keep Order
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmVoid}
-                className="flex-1 py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/25 transition active:scale-95 flex items-center justify-center gap-1.5"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Yes, Void</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Reusable Void Order Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showVoidModal}
+        title="Void Active Order?"
+        description={
+          <>
+            Are you sure you want to void this transaction? All{' '}
+            <strong className="text-slate-700 font-mono">
+              {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
+            </strong>{' '}
+            ({formatCents(totalCents)}) currently in the cart will be cleared.
+          </>
+        }
+        cancelLabel="Keep Order"
+        confirmLabel="Yes, Void"
+        variant="danger"
+        confirmIcon={<Trash2 className="w-3.5 h-3.5" />}
+        onCancel={() => setShowVoidModal(false)}
+        onConfirm={handleConfirmVoid}
+      />
     </div>
   )
 }
