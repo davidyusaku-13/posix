@@ -149,6 +149,18 @@ func TestREST_NotificationEndpoints(t *testing.T) {
 		}
 	})
 
+	t.Run("POST /api/v1/notifications/test with explicit phone dispatches directly", func(t *testing.T) {
+		payload := `{"phone":"+6281234567890"}`
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/notifications/test", bytes.NewBufferString(payload))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d. Body: %s", rec.Code, rec.Body.String())
+		}
+	})
+
 	t.Run("GET /api/v1/notifications/logs returns list of audit events", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/v1/notifications/logs", nil)
 		rec := httptest.NewRecorder()

@@ -84,6 +84,10 @@ func (h *NotificationHandler) HandleStatus(w http.ResponseWriter, r *http.Reques
 	respondJSON(w, http.StatusOK, status)
 }
 
+type testNotificationInput struct {
+	Phone string `json:"phone,omitempty"`
+}
+
 // HandleTest routes POST /api/v1/notifications/test.
 func (h *NotificationHandler) HandleTest(w http.ResponseWriter, r *http.Request) {
 	if h.svc == nil {
@@ -96,7 +100,16 @@ func (h *NotificationHandler) HandleTest(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := h.svc.SendTestNotification(r.Context()); err != nil {
+	var input testNotificationInput
+	if r.Body != nil {
+		_ = json.NewDecoder(r.Body).Decode(&input)
+	}
+
+	if err := h.svc.SendTestNotification(r.Context(), input.Phone); err != nil {
+		if errors.Is(err, domain.ErrInvalidPhoneNumber) {
+			respondError(w, http.StatusUnprocessableEntity, "INVALID_PHONE_NUMBER", err.Error())
+			return
+		}
 		respondError(w, http.StatusUnprocessableEntity, "DELIVERY_FAILED", err.Error())
 		return
 	}

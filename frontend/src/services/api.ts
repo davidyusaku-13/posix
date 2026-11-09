@@ -294,10 +294,11 @@ export const posApi = {
     return res.json()
   },
 
-  async sendTestNotification(): Promise<{ status: string; message: string }> {
+  async sendTestNotification(phone?: string): Promise<{ status: string; message: string }> {
     const res = await fetch('/api/v1/notifications/test', {
       method: 'POST',
-      headers: getAuthHeader(),
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: phone ? JSON.stringify({ phone }) : undefined,
     })
     if (!res.ok) {
       const err: ApiError = await res.json()

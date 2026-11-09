@@ -51,18 +51,26 @@ func (s *NotificationService) Disconnect(ctx context.Context) error {
 	return s.notifier.Disconnect(ctx)
 }
 
-// SendTestNotification sends an on-demand verification message to the owner's phone.
-func (s *NotificationService) SendTestNotification(ctx context.Context) error {
-	cfg, err := s.repo.GetConfig(ctx)
-	if err != nil {
-		return err
-	}
-	if cfg.OwnerPhone == "" {
-		return domain.ErrInvalidPhoneNumber
+// SendTestNotification sends an on-demand verification message to the owner's phone or an explicitly passed test phone.
+func (s *NotificationService) SendTestNotification(ctx context.Context, targetPhone ...string) error {
+	phone := ""
+	if len(targetPhone) > 0 && targetPhone[0] != "" {
+		phone = targetPhone[0]
+	} else {
+		cfg, err := s.repo.GetConfig(ctx)
+		if err != nil {
+			return err
+		}
+		phone = cfg.OwnerPhone
 	}
 
-	msg := domain.FormatTestMessage(cfg.OwnerPhone)
-	sendErr := s.notifier.SendMessage(ctx, cfg.OwnerPhone, msg)
+	if err := domain.ValidatePhoneNumber(phone); err != nil {
+		return err
+	}
+	phone = domain.NormalizePhoneNumber(phone)
+
+	msg := domain.FormatTestMessage(phone)
+	sendErr := s.notifier.SendMessage(ctx, phone, msg)
 
 	status := "sent"
 	errMsg := ""
@@ -73,7 +81,7 @@ func (s *NotificationService) SendTestNotification(ctx context.Context) error {
 
 	_ = s.repo.LogNotification(ctx, &domain.NotificationLog{
 		Channel:      "whatsapp",
-		Recipient:    cfg.OwnerPhone,
+		Recipient:    phone,
 		EventType:    "test",
 		Payload:      msg,
 		Status:       status,

@@ -54,6 +54,11 @@ func TestValidatePhoneNumber(t *testing.T) {
 		{"+6281234567890", true},
 		{"14155552671", true},
 		{"6281234567890", true},
+		{"081234567890", true},
+		{"81234567890", true},
+		{"+62 0812-3456-7890", true},
+		{"006281234567890", true},
+		{"6281234567890:1@s.whatsapp.net", true},
 		{"", false},
 		{"abc", false},
 		{"+1", false}, // too short
@@ -78,6 +83,11 @@ func TestNormalizePhoneNumber(t *testing.T) {
 		{"+1 (415) 555-2671", "14155552671"},
 		{"+62 812-3456-7890", "6281234567890"},
 		{"08123456789", "628123456789"}, // common Indonesian prefix normalization
+		{"81234567890", "6281234567890"}, // omitted 0/62 prefix
+		{"+62 0812-3456-7890", "6281234567890"}, // redundant 0 after 62
+		{"006281234567890", "6281234567890"}, // international 00 prefix
+		{"0014155552671", "14155552671"}, // international 00 prefix US
+		{"6281234567890:1@s.whatsapp.net", "6281234567890"}, // Baileys JID format
 		{"14155552671", "14155552671"},
 	}
 

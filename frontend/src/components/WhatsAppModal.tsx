@@ -22,6 +22,18 @@ interface WhatsAppModalProps {
   onClose: () => void
 }
 
+function normalizePhonePreview(raw: string): string {
+  let cleaned = raw.trim().replace(/^https?:\/\/wa\.me\//, '').replace(/^wa\.me\//, '').replace(/^whatsapp:/, '')
+  if (cleaned.includes('@')) cleaned = cleaned.split('@')[0]
+  if (cleaned.includes(':')) cleaned = cleaned.split(':')[0]
+  let digits = cleaned.replace(/\D/g, '')
+  if (digits.startsWith('00') && digits.length > 8) digits = digits.slice(2)
+  if (digits.startsWith('6208') && digits.length >= 11) digits = '62' + digits.slice(3)
+  else if (digits.startsWith('08') && digits.length >= 9) digits = '62' + digits.slice(1)
+  else if (digits.startsWith('8') && digits.length >= 9 && digits.length <= 12) digits = '62' + digits
+  return digits
+}
+
 export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
   const [activeTab, setActiveTab] = useState<'connection' | 'settings' | 'logs'>('connection')
 
@@ -151,11 +163,12 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
   const handleSendTest = async () => {
     setIsSendingTest(true)
     setTestResult(null)
+    const phoneToTest = ownerPhone.trim() || config?.ownerPhone || ''
     try {
-      await api.sendTestNotification()
+      await api.sendTestNotification(phoneToTest)
       setTestResult({
         success: true,
-        msg: `Test alert sent successfully to ${config?.ownerPhone || ownerPhone}!`,
+        msg: `Test alert dispatched to +${normalizePhonePreview(phoneToTest)}!`,
       })
     } catch (err: any) {
       setTestResult({
@@ -391,12 +404,17 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 type="text"
                 value={ownerPhone}
                 onChange={(e) => setOwnerPhone(e.target.value)}
-                placeholder="e.g. +14155552671 or 6281234567890"
+                placeholder="e.g. 081234567890, +6281234567890, or +14155552671"
                 className="w-full px-3 py-2 border border-border rounded-none text-sm font-mono text-foreground bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              <p className="text-[11px] text-muted-foreground mt-1">
-                International or standard national format with country code.
-              </p>
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1">
+                <span>Accepts 08xxx, +62xxx, or international format.</span>
+                {ownerPhone.trim() && (
+                  <span className="font-mono text-foreground font-semibold">
+                    Target: +{normalizePhonePreview(ownerPhone)}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Feature Toggles */}

@@ -64,12 +64,44 @@ type NotificationLog struct {
 
 var nonDigitRegex = regexp.MustCompile(`\D`)
 
-// NormalizePhoneNumber strips non-digit characters and normalizes leading zero if standard Indonesian.
+// NormalizePhoneNumber cleans and formats phone numbers to standard E.164 international format without plus.
 func NormalizePhoneNumber(phone string) string {
-	digits := nonDigitRegex.ReplaceAllString(phone, "")
-	if strings.HasPrefix(digits, "0") && len(digits) >= 10 {
-		digits = "62" + digits[1:]
+	phone = strings.TrimSpace(phone)
+
+	// Strip URL prefixes if user pasted a wa.me or whatsapp link
+	phone = strings.TrimPrefix(phone, "https://wa.me/")
+	phone = strings.TrimPrefix(phone, "http://wa.me/")
+	phone = strings.TrimPrefix(phone, "wa.me/")
+	phone = strings.TrimPrefix(phone, "whatsapp:")
+
+	// Strip device and domain suffixes (e.g., :1@s.whatsapp.net, @s.whatsapp.net, @c.us)
+	if atIdx := strings.Index(phone, "@"); atIdx != -1 {
+		phone = phone[:atIdx]
 	}
+	if colonIdx := strings.Index(phone, ":"); colonIdx != -1 {
+		phone = phone[:colonIdx]
+	}
+
+	// Remove all non-digits
+	digits := nonDigitRegex.ReplaceAllString(phone, "")
+
+	// Handle standard international prefix "00" (e.g. 0062... -> 62..., 001... -> 1...)
+	if strings.HasPrefix(digits, "00") && len(digits) > 8 {
+		digits = digits[2:]
+	}
+
+	// Handle Indonesia common formatting:
+	// 1. Redundant 0 after country code 62 (e.g. 620812... -> 62812...)
+	if strings.HasPrefix(digits, "6208") && len(digits) >= 11 {
+		digits = "62" + digits[3:]
+	} else if strings.HasPrefix(digits, "08") && len(digits) >= 9 {
+		// 2. Domestic 08xx mobile -> 628xx
+		digits = "62" + digits[1:]
+	} else if strings.HasPrefix(digits, "8") && len(digits) >= 9 && len(digits) <= 12 {
+		// 3. Omitting 0/62 (e.g. 81234567890) -> 6281234567890
+		digits = "62" + digits
+	}
+
 	return digits
 }
 
