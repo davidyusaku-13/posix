@@ -167,6 +167,43 @@ export interface TranslationSchema {
     noLogs: string
     saving: string
     saveSettings: string
+    tabPairing: string
+    tabSettings: string
+    tabLogs: string
+    statusConnected: string
+    statusPairingRequired: string
+    statusDisconnected: string
+    linkedNumber: string
+    refresh: string
+    devicePairedTitle: string
+    devicePairedDesc: string
+    disconnectSession: string
+    initializingTitle: string
+    initializingDesc: string
+    masterToggleTitle: string
+    masterToggleDesc: string
+    lowStockToggleTitle: string
+    lowStockToggleDesc: string
+    cooldownTitle: string
+    cooldownDesc: string
+    cooldown15m: string
+    cooldown30m: string
+    cooldown1h: string
+    cooldown2h: string
+    cooldown6h: string
+    verifyChannelTitle: string
+    verifyChannelDesc: string
+    sendingTest: string
+    settingsSaved: string
+    logsDesc: string
+    refreshLogs: string
+    loadingLogs: string
+    colTime: string
+    colEvent: string
+    colRecipient: string
+    colStatus: string
+    disconnectConfirmTitle: string
+    disconnectConfirmDesc: string
   }
   auth: {
     welcome: string

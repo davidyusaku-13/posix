@@ -36,7 +36,7 @@ function normalizePhonePreview(raw: string): string {
 }
 
 export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
-  const { dict, formatDate } = useI18n()
+  const { dict, t, formatDate } = useI18n()
   const [activeTab, setActiveTab] = useState<'connection' | 'settings' | 'logs'>('connection')
 
   // Connection State
@@ -153,7 +153,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
         cooldownMinutes,
       })
       setConfig(updated)
-      setConfigSuccessMsg('Notification settings successfully updated')
+      setConfigSuccessMsg(dict.whatsapp.settingsSaved)
       setTimeout(() => setConfigSuccessMsg(''), 4000)
     } catch (err: any) {
       setConfigErrorMsg(err.message || 'Failed to save settings')
@@ -241,7 +241,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             }`}
           >
             <QrCode className="w-3.5 h-3.5" />
-            Device Pairing
+            {dict.whatsapp.tabPairing}
           </button>
           <button
             type="button"
@@ -253,7 +253,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
-            Alert Settings
+            {dict.whatsapp.tabSettings}
           </button>
           <button
             type="button"
@@ -265,7 +265,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             }`}
           >
             <History className="w-3.5 h-3.5" />
-            Dispatch Logs
+            {dict.whatsapp.tabLogs}
           </button>
         </div>
 
@@ -288,14 +288,14 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                   <span className="text-xs font-bold text-foreground block">
                     Status:{' '}
                     {status?.status === 'connected'
-                      ? 'Connected & Authenticated'
+                      ? dict.whatsapp.statusConnected
                       : status?.status === 'qr_ready'
-                      ? 'Pairing Required (Scan QR Code)'
-                      : 'Disconnected / Offline'}
+                      ? dict.whatsapp.statusPairingRequired
+                      : dict.whatsapp.statusDisconnected}
                   </span>
                   {status?.connectedPhone && (
                     <span className="text-[11px] font-mono text-muted-foreground">
-                      Linked Number: +{status.connectedPhone}
+                      {dict.whatsapp.linkedNumber}: +{status.connectedPhone}
                     </span>
                   )}
                   {status?.error && (
@@ -313,7 +313,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 className="px-2.5 py-1 text-[11px] font-medium border border-border hover:bg-muted text-foreground flex items-center gap-1.5 transition rounded-none"
               >
                 <RefreshCw className={`w-3 h-3 ${isLoadingStatus ? 'animate-spin' : ''}`} />
-                Refresh
+                {dict.whatsapp.refresh}
               </button>
             </div>
 
@@ -327,10 +327,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 />
                 <div className="text-center max-w-sm space-y-1">
                   <p className="text-xs font-bold text-foreground">
-                    Scan with your WhatsApp mobile app
+                    {dict.whatsapp.scanQr}
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    Open WhatsApp &gt; Settings &gt; Linked Devices &gt; Link a Device and point your camera here.
+                    {dict.whatsapp.scanInstructions}
                   </p>
                 </div>
               </div>
@@ -343,10 +343,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                   <CheckCircle2 className="w-6 h-6 stroke-[2.5]" />
                 </div>
                 <h4 className="text-sm font-bold text-emerald-900">
-                  WhatsApp Device Successfully Paired
+                  {dict.whatsapp.devicePairedTitle}
                 </h4>
                 <p className="text-xs text-emerald-800 max-w-md mx-auto">
-                  Your POSIX terminal is actively connected to WhatsApp. Automated low-stock alerts will be dispatched to the configured store owner phone number.
+                  {dict.whatsapp.devicePairedDesc}
                 </p>
                 <div className="pt-2">
                   <button
@@ -355,7 +355,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                     className="px-4 py-2 border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 text-xs font-bold flex items-center gap-1.5 mx-auto rounded-none transition"
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    Disconnect WhatsApp Session
+                    {dict.whatsapp.disconnectSession}
                   </button>
                 </div>
               </div>
@@ -366,14 +366,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
               <div className="p-6 border border-border bg-[#faf7f3] text-center space-y-2 rounded-none">
                 <Smartphone className="w-8 h-8 text-muted-foreground mx-auto" />
                 <h4 className="text-xs font-bold text-foreground">
-                  Baileys Service Initializing
+                  {dict.whatsapp.initializingTitle}
                 </h4>
                 <p className="text-[11px] text-muted-foreground max-w-md mx-auto">
-                  Ensure the local WhatsApp bridge is running via{' '}
-                  <code className="bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                    bun run bridge/whatsapp/index.ts
-                  </code>
-                  .
+                  {dict.whatsapp.initializingDesc}
                 </p>
               </div>
             )}
@@ -400,7 +396,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             {/* Store Owner Phone */}
             <div>
               <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1">
-                Store Owner WhatsApp Number
+                {dict.whatsapp.ownerPhone}
               </label>
               <input
                 type="text"
@@ -410,10 +406,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 className="w-full px-3 py-2 border border-border rounded-none text-sm font-mono text-foreground bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1">
-                <span>Accepts 08xxx, +62xxx, or international format.</span>
+                <span>{dict.whatsapp.phoneHelp}</span>
                 {ownerPhone.trim() && (
                   <span className="font-mono text-foreground font-semibold">
-                    Target: +{normalizePhonePreview(ownerPhone)}
+                    {t('whatsapp.phonePreview', { phone: normalizePhonePreview(ownerPhone) })}
                   </span>
                 )}
               </div>
@@ -430,10 +426,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 />
                 <div>
                   <span className="text-xs font-bold text-foreground block">
-                    Master WhatsApp Notifications Toggle
+                    {dict.whatsapp.masterToggleTitle}
                   </span>
                   <span className="text-[11px] text-muted-foreground block">
-                    Enables or suppresses all outbound WhatsApp dispatching.
+                    {dict.whatsapp.masterToggleDesc}
                   </span>
                 </div>
               </label>
@@ -447,10 +443,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 />
                 <div>
                   <span className="text-xs font-bold text-foreground block">
-                    Low Stock Threshold Alerts (FR-8.2)
+                    {dict.whatsapp.lowStockToggleTitle}
                   </span>
                   <span className="text-[11px] text-muted-foreground block">
-                    Sends an alert when inventory falls to or below minimum threshold.
+                    {dict.whatsapp.lowStockToggleDesc}
                   </span>
                 </div>
               </label>
@@ -459,21 +455,21 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             {/* Cooldown Settings */}
             <div className="pt-2 border-t border-border/80">
               <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1">
-                Notification Cooldown Window
+                {dict.whatsapp.cooldownTitle}
               </label>
               <select
                 value={cooldownMinutes}
                 onChange={(e) => setCooldownMinutes(parseInt(e.target.value, 10))}
                 className="w-full px-3 py-2 border border-border rounded-none text-xs text-foreground bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               >
-                <option value={15}>15 Minutes</option>
-                <option value={30}>30 Minutes</option>
-                <option value={60}>1 Hour (Recommended)</option>
-                <option value={120}>2 Hours</option>
-                <option value={360}>6 Hours</option>
+                <option value={15}>{dict.whatsapp.cooldown15m}</option>
+                <option value={30}>{dict.whatsapp.cooldown30m}</option>
+                <option value={60}>{dict.whatsapp.cooldown1h}</option>
+                <option value={120}>{dict.whatsapp.cooldown2h}</option>
+                <option value={360}>{dict.whatsapp.cooldown6h}</option>
               </select>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Prevents alert flooding for repeated sales of the same low-stock item.
+                {dict.whatsapp.cooldownDesc}
               </p>
             </div>
 
@@ -481,10 +477,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
             <div className="p-3.5 border border-border bg-[#faf7f3] rounded-none flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-foreground block">
-                  Verify WhatsApp Channel
+                  {dict.whatsapp.verifyChannelTitle}
                 </span>
                 <span className="text-[11px] text-muted-foreground block">
-                  Dispatches an instant test message to the owner's phone.
+                  {dict.whatsapp.verifyChannelDesc}
                 </span>
               </div>
               <button
@@ -498,7 +494,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 ) : (
                   <Send className="w-3.5 h-3.5" />
                 )}
-                Send Test Alert
+                {isSendingTest ? dict.whatsapp.sendingTest : dict.whatsapp.sendTest}
               </button>
             </div>
 
@@ -526,7 +522,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted rounded-none"
               >
-                Close
+                {dict.common.close}
               </button>
               <button
                 type="submit"
@@ -534,7 +530,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 className="px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-none transition flex items-center gap-1.5"
               >
                 {isSavingConfig ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                Save Preferences
+                {isSavingConfig ? dict.whatsapp.saving : dict.whatsapp.saveSettings}
               </button>
             </div>
           </form>
@@ -545,7 +541,7 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">
-                Recent notification dispatches and delivery statuses:
+                {dict.whatsapp.logsDesc}
               </p>
               <button
                 type="button"
@@ -554,14 +550,14 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 className="px-2.5 py-1 text-[11px] font-medium border border-border hover:bg-muted text-foreground flex items-center gap-1.5 transition rounded-none"
               >
                 <RefreshCw className={`w-3 h-3 ${isLoadingLogs ? 'animate-spin' : ''}`} />
-                Refresh Logs
+                {dict.whatsapp.refreshLogs}
               </button>
             </div>
 
             {isLoadingLogs ? (
               <div className="p-8 text-center text-xs text-muted-foreground">
                 <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
-                Loading dispatch ledger...
+                {dict.whatsapp.loadingLogs}
               </div>
             ) : logs.length === 0 ? (
               <div className="p-8 border border-border text-center text-xs text-muted-foreground bg-[#faf7f3] rounded-none">
@@ -572,10 +568,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#f5efe6] border-b border-border text-foreground font-bold text-[10px] uppercase tracking-wider">
                     <tr>
-                      <th className="p-2.5">Time</th>
-                      <th className="p-2.5">Event</th>
-                      <th className="p-2.5">Recipient</th>
-                      <th className="p-2.5">Status</th>
+                      <th className="p-2.5">{dict.whatsapp.colTime}</th>
+                      <th className="p-2.5">{dict.whatsapp.colEvent}</th>
+                      <th className="p-2.5">{dict.whatsapp.colRecipient}</th>
+                      <th className="p-2.5">{dict.whatsapp.colStatus}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -614,9 +610,10 @@ export function WhatsAppModal({ isOpen, onClose }: WhatsAppModalProps) {
       {/* Disconnect Confirmation Modal */}
       <ConfirmModal
         isOpen={isDisconnectConfirmOpen}
-        title="Disconnect WhatsApp Session?"
-        description="Logging out will terminate the Baileys multi-device connection. You will need to re-scan the QR code to receive alerts again."
-        confirmLabel="Disconnect"
+        title={dict.whatsapp.disconnectConfirmTitle}
+        description={dict.whatsapp.disconnectConfirmDesc}
+        confirmLabel={dict.whatsapp.disconnectDevice}
+        cancelLabel={dict.common.cancel}
         variant="danger"
         onConfirm={handleDisconnect}
         onCancel={() => setIsDisconnectConfirmOpen(false)}
