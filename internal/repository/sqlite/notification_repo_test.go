@@ -99,6 +99,12 @@ func TestNotificationRepository(t *testing.T) {
 		if logs[0].Status != "sent" {
 			t.Errorf("expected status 'sent', got %s", logs[0].Status)
 		}
+		if logs[0].CreatedAt.IsZero() {
+			t.Errorf("expected non-zero CreatedAt for log, got %v", logs[0].CreatedAt)
+		}
+		if logs[0].CreatedAt.Year() <= 1 {
+			t.Errorf("expected valid year for log CreatedAt, got %v", logs[0].CreatedAt.Year())
+		}
 
 		lastSent, err := repo.GetLastSentAt(ctx, "low_stock", 101)
 		if err != nil {

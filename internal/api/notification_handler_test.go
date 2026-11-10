@@ -176,6 +176,13 @@ func TestREST_NotificationEndpoints(t *testing.T) {
 		}
 		if len(logs) == 0 {
 			t.Errorf("expected at least 1 log entry, got 0")
+		} else {
+			if logs[0].CreatedAt.IsZero() {
+				t.Errorf("expected non-zero CreatedAt in API response, got %v", logs[0].CreatedAt)
+			}
+			if logs[0].CreatedAt.Year() <= 1 {
+				t.Errorf("expected valid year in API response CreatedAt, got %d", logs[0].CreatedAt.Year())
+			}
 		}
 	})
 

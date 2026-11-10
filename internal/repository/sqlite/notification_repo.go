@@ -145,7 +145,6 @@ func (r *NotificationRepo) ListLogs(ctx context.Context, limit int) ([]domain.No
 	var logs []domain.NotificationLog
 	for rows.Next() {
 		var l domain.NotificationLog
-		var createdAtStr string
 		err := rows.Scan(
 			&l.ID,
 			&l.Channel,
@@ -154,12 +153,11 @@ func (r *NotificationRepo) ListLogs(ctx context.Context, limit int) ([]domain.No
 			&l.Payload,
 			&l.Status,
 			&l.ErrorMessage,
-			&createdAtStr,
+			&l.CreatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan notification log: %w", err)
 		}
-		l.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
 		logs = append(logs, l)
 	}
 	return logs, nil
@@ -173,17 +171,13 @@ func (r *NotificationRepo) GetLastSentAt(ctx context.Context, eventType string, 
 		ORDER BY created_at DESC
 		LIMIT 1
 	`
-	var createdAtStr string
-	err := r.db.QueryRowContext(ctx, query, eventType, productID).Scan(&createdAtStr)
+	var t time.Time
+	err := r.db.QueryRowContext(ctx, query, eventType, productID).Scan(&t)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, fmt.Errorf("failed to query last sent notification: %w", err)
 	}
 
-	t, err := time.Parse("2006-01-02 15:04:05", createdAtStr)
-	if err != nil {
-		t, _ = time.Parse(time.RFC3339, createdAtStr)
-	}
 	return &t, nil
 }

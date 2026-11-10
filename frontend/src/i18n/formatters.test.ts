@@ -64,8 +64,9 @@ describe('i18n formatters', () => {
       expect(idRes.length).toBeGreaterThan(0)
     })
 
-    it('returns empty string for invalid date', () => {
-      expect(formatDateTime('invalid-date')).toBe('')
+    it('returns em-dash for invalid date or year 1 zero date', () => {
+      expect(formatDateTime('invalid-date')).toBe('—')
+      expect(formatDateTime('0001-01-01T00:00:00Z')).toBe('—')
     })
   })
 })

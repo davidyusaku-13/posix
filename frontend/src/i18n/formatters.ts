@@ -29,7 +29,7 @@ export function formatDateTime(
   locale: SupportedLocale = 'en'
 ): string {
   const d = new Date(dateInput)
-  if (isNaN(d.getTime())) return ''
+  if (isNaN(d.getTime()) || d.getFullYear() <= 1) return '—'
   return new Intl.DateTimeFormat(locale === 'id' ? 'id-ID' : 'en-US', {
     year: 'numeric',
     month: 'short',
