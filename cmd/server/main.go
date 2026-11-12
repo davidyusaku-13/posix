@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -93,12 +96,44 @@ func main() {
 		_ = server.Shutdown(shutdownCtx)
 	}()
 
+	displayHost := resolveDisplayHost()
 	log.Printf("==============================================")
 	log.Printf("  POSIX — Point of Sale")
-	log.Printf("  Listening on http://localhost%s", addr)
+	log.Printf("  Listening on http://%s%s", displayHost, addr)
 	log.Printf("==============================================")
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server stopped unexpectedly: %v", err)
 	}
+}
+
+// resolveDisplayHost detects Tailscale hostname, system hostname, or POSIX_HOST override.
+func resolveDisplayHost() string {
+	if custom := os.Getenv("POSIX_HOST"); custom != "" {
+		return custom
+	}
+
+	// 1. Try tailscale status --json
+	if tailscaleBin, err := exec.LookPath("tailscale"); err == nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)
+		defer cancel()
+		out, err := exec.CommandContext(ctx, tailscaleBin, "status", "--json").Output()
+		if err == nil {
+			var tsStatus struct {
+				Self struct {
+					HostName string `json:"HostName"`
+				} `json:"Self"`
+			}
+			if err := json.Unmarshal(out, &tsStatus); err == nil && tsStatus.Self.HostName != "" {
+				return strings.ToLower(tsStatus.Self.HostName)
+			}
+		}
+	}
+
+	// 2. Fallback to system hostname
+	if h, err := os.Hostname(); err == nil && h != "" {
+		return strings.ToLower(h)
+	}
+
+	return "localhost"
 }
